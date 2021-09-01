@@ -7,24 +7,28 @@ import QtQuick.Extras 1.4
 Window {
     width: 640
     height: 480
+    minimumHeight: 480
+    maximumHeight: 480
+    minimumWidth: 640
+    maximumWidth: 640
     visible: true
     title: qsTr("Hello World")
 
     Button {
         id: btnLoadConfig
-        x: 28
-        y: 25
+        x: 30
+        y: 18
         width: 107
-        height: 26
+        height: 40
         text: "Load Settings"
         onClicked: model.revert()
     }
 
     Rectangle {
         id: rectangle
-        x: 28
-        y: 278
-        width: 346
+        x: 30
+        y: 275
+        width: 580
         height: 189
         color: "#000000"
 
@@ -32,29 +36,31 @@ Window {
             id: textEdit
             anchors.fill: parent
             color: "#ffffff"
-            text: qsTr("Text Edit")
+            selectByMouse: true
+            readOnly: true
             font.pixelSize: 12
+            selectionColor: "#ffffff"
             font.family: "Courier"
             anchors.rightMargin: 5
             anchors.leftMargin: 5
             anchors.bottomMargin: 5
             anchors.topMargin: 5
-            selectedTextColor: "#ffff00"
+            selectedTextColor: "#000000"
         }
 
     }
 
     StatusIndicator {
         id: statusIndicator
-        x: 157
-        y: 27
+        x: 154
+        y: 26
     }
 
     GroupBox {
         id: groupBox
-        x: 28
-        y: 66
-        width: 523
+        x: 30
+        y: 70
+        width: 580
         height: 191
         font.bold: true
 
