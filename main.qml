@@ -3,6 +3,9 @@ import QtQuick.Controls 2.9
 import QtQuick.Window 2.2
 import QtQuick.Layouts 1.15
 import QtQuick.Extras 1.4
+import JetsonTx2FlashingInfo 1.0
+import "."
+
 
 Window {
     width: 640
@@ -13,6 +16,13 @@ Window {
     maximumWidth: 640
     visible: true
     title: qsTr("Hello World")
+
+    //qml에 클래스를 선언해 주는 곳
+    JetsonTx2FlashingInfo
+    {
+        //클래스를 선언해주고 id를 등록
+        id:jetson_flashing_info;
+    }
 
     Button {
         id: btnLoadConfig
@@ -197,12 +207,19 @@ Window {
                     x: 384
                     y: 185
                     text: qsTr("Load")
+                    onClicked: {
+                        jetson_flashing_info.button_test("button1");
+                    }
+
                 }
                 Button {
                     id: btnSetConfig
                     x: 384
                     y: 185
                     text: qsTr("Flashing")
+                    onClicked: {
+                        jetson_flashing_info.button_test("button2");
+                    }
                 }
             }
 
