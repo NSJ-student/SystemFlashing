@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PROJECT_DB VERSION="1.00">
+  
+  <PROJECT_lIST>
+    <PROJECT NAME="K-6402GDE" DISPLAY_OUT="DSI_2CH" />
+    <PROJECT NAME="K-6402GP" DISPLAY_OUT="DSI_2CH" />
+    <PROJECT NAME="K-6404GT" DISPLAY_OUT="DSI_4CH" />
+    <PROJECT NAME="K-6408GT" DISPLAY_OUT="DSI_8CH" />
+    <PROJECT NAME="K-6408GT eLCV" DISPLAY_OUT="HDMI" />
+  </PROJECT_lIST>
+
+  <DISPLAY_OUT NAME="DSI_2CH"
+               DTS=""
+               BASE_PATH="~/nvidia_old/.../.../Linux_For_Tegra"
+               APP_PREFIX="DISP_2CH_CTRL_3"
+               APP_DIR=""
+               RSC_DIR=""
+               DST_PATH="">
+    <IP NAME="LEFT"/>
+  </DISPLAY_OUT>
+  <DISPLAY_OUT NAME="DSI_4CH"
+               DTS=""
+               BASE_PATH="~/nvidia_old/.../.../Linux_For_Tegra"
+               APP_PREFIX="DISP_2CH_CTRL_3"
+               APP_DIR=""
+               RSC_DIR=""
+               DST_PATH="">
+    <IP NAME="LEFT"/>
+    <IP NAME="RIGHT"/>
+  </DISPLAY_OUT>
+  <DISPLAY_OUT NAME="DSI_8CH"
+               DTS=""
+               BASE_PATH="~/nvidia_old/.../.../Linux_For_Tegra"
+               APP_PREFIX="DISP_2CH_CTRL_8"
+               APP_DIR=""
+               RSC_DIR=""
+               DST_PATH="">
+    <IP NAME="LEFT"/>
+    <IP NAME="RIGHT"/>
+  </DISPLAY_OUT>
+  <DISPLAY_OUT NAME="DSI_1CH"
+               DTS=""
+               BASE_PATH="~/nvidia_old/.../.../Linux_For_Tegra"
+               APP_PREFIX="DISP_CTRL"
+               APP_DIR=""
+               RSC_DIR=""
+               DST_PATH="">
+    <IP NAME="LEFT"/>
+  </DISPLAY_OUT>
+  <DISPLAY_OUT NAME="HDMI"
+               DTS=""
+               BASE_PATH="~/nvidia_new/.../.../Linux_For_Tegra"
+               APP_PREFIX="DISP_CTRL"
+               APP_DIR=""
+               RSC_DIR=""
+               DST_PATH="">
+    <IP NAME="LEFT"/>
+  </DISPLAY_OUT>
+
+  <IP NAME="LEFT" ADDRESS="192.168.20.192" SRC_FILE="interface_192" DST_PATH="rootfs/etc/network/interfaces"/>
+  <IP NAME="RIGHT" ADDRESS="192.168.20.193" SRC_FILE="interface_193" DST_PATH="rootfs/etc/network/interfaces"/>
+  
+</PROJECT_DB>

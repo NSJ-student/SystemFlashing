@@ -3,6 +3,7 @@ import QtQuick.Controls 2.9
 import QtQuick.Window 2.2
 import QtQuick.Layouts 1.15
 import QtQuick.Extras 1.4
+import QtQuick.Dialogs 1.3
 import JetsonTx2FlashingInfo 1.0
 import "."
 
@@ -24,22 +25,16 @@ Window {
         id:jetson_flashing_info;
     }
 
-    Button {
-        id: btnLoadConfig
-        x: 30
-        y: 18
-        width: 107
-        height: 40
-        text: "Load Settings"
-        onClicked: model.revert()
+    onWindowStateChanged: {
+        console.log("state: " + windowState);
     }
 
     Rectangle {
         id: rectangle
         x: 30
-        y: 275
+        y: 312
         width: 580
-        height: 189
+        height: 152
         color: "#000000"
 
         TextEdit {
@@ -61,24 +56,42 @@ Window {
     }
 
     StatusIndicator {
-        id: statusIndicator
-        x: 154
-        y: 26
+        id: statusSetting
+        x: 538
+        y: 42
     }
 
     GroupBox {
         id: groupBox
         x: 30
-        y: 70
+        y: 24
         width: 580
-        height: 191
+        height: 271
         font.bold: true
 
         GridLayout {
             id: gridLayout
             anchors.fill: parent
-            rows: 5
+            rows: 7
             columns: 4
+
+            ComboBox {
+                id: cbProject
+                x: 0
+                y: 9
+                width: 126
+                height: 36
+                Layout.columnSpan: 4
+            }
+
+            ToolSeparator {
+                id: toolSeparator
+                x: 207
+                y: 11
+                width: 550
+                Layout.columnSpan: 4
+                orientation: Qt.Horizontal
+            }
 
             Text {
                 id: text6
@@ -94,7 +107,6 @@ Window {
                 y: 40
                 width: 92
                 height: 20
-                model: ["DSI 2CH", "DSI 1CH", "HDMI"]
             }
 
             Text {
@@ -151,7 +163,6 @@ Window {
                 y: 10
                 width: 92
                 height: 20
-                model: ["192.168.20.192", "192.168.20.193"]
             }
 
             Text {
@@ -227,5 +238,6 @@ Window {
         }
 
     }
+
 
 }

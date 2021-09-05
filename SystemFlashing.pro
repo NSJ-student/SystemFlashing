@@ -1,4 +1,4 @@
-QT += quick
+QT += quick core widgets xml
 
 CONFIG += c++11
 
@@ -25,3 +25,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     jetsontx2flashinginfo.h
+
+DISTFILES += \
+    init.xml \
+    last_log.xml
