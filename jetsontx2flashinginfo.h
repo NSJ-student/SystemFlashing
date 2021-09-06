@@ -97,6 +97,12 @@ public:
 class JetsonTx2FlashingInfo : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QStringList projectList READ projectList NOTIFY projectListChanged)
+    Q_PROPERTY(QStringList displayList READ displayList NOTIFY displayListChanged)
+    Q_PROPERTY(QStringList ipList READ ipList NOTIFY ipListChanged)
+    Q_PROPERTY(QStringList upgradeAppList READ upgradeAppList NOTIFY upgradeAppListChanged)
+    Q_PROPERTY(QStringList dispAppList READ dispAppList NOTIFY dispAppListChanged)
+
 public:
     JetsonTx2FlashingInfo(QObject *parent = Q_NULLPTR);
     ~JetsonTx2FlashingInfo();
@@ -104,7 +110,18 @@ public:
     void setWindow(QQuickWindow * window);
     Q_INVOKABLE void button_test(QString str);
 
+    const QStringList projectList();
+    const QStringList displayList();
+    const QStringList ipList();
+    const QStringList upgradeAppList();
+    const QStringList dispAppList();
+
 signals:
+    void projectListChanged();
+    void displayListChanged();
+    void ipListChanged();
+    void upgradeAppListChanged();
+    void dispAppListChanged();
 
 public slots:
     void windowCreated();
@@ -112,11 +129,11 @@ public slots:
     void loadSettingInfo(const QString &path);
     void saveSettingInfo();
 
-    void projectChanged(const QString &project);
-    void displayChanged(const QString &display_out);
-    void ipChanged(const QString &ip);
-    void remoteupgradeChanged(const QString &remote_upgrade);
-    void dispctrlChanged(const QString &dispctrl);
+    void projectChanged(int project);
+    void displayChanged(int display_out);
+    void ipChanged(int ip);
+    void remoteupgradeChanged(int remote_upgrade);
+    void dispctrlChanged(int dispctrl);
 
 
 private:
@@ -128,7 +145,15 @@ private:
 
     CurrentSet currentStatus;
 
+    QStringList m_projectList;
+    QStringList m_displayList;
+    QStringList m_ipList;
+    QStringList m_upgradeAppList;
+    QStringList m_dispAppList;
+
     bool getLastProject();
+    void updateUpgradeAppList();
+    void updateDispAppList();
     void clearSettingInfo();
 
     template <typename T>

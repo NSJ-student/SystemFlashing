@@ -8,7 +8,8 @@ CONFIG += c++11
 
 SOURCES += \
         jetsontx2flashinginfo.cpp \
-        main.cpp
+        main.cpp \
+        terminalprocess.cpp
 
 RESOURCES += qml.qrc
 
@@ -24,8 +25,10 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    jetsontx2flashinginfo.h
+    jetsontx2flashinginfo.h \
+    terminalprocess.h
 
 DISTFILES += \
     init.xml \
+    init_test.xml \
     last_log.xml

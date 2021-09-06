@@ -16,11 +16,43 @@ JetsonTx2FlashingInfo::~JetsonTx2FlashingInfo()
 void JetsonTx2FlashingInfo::setWindow(QQuickWindow *window)
 {
     mMainView = window;
+    connect(mMainView, SIGNAL(projectChanged(int)), this, SLOT(projectChanged(int)));
+    connect(mMainView, SIGNAL(displayChanged(int)), this, SLOT(displayChanged(int)));
+    connect(mMainView, SIGNAL(ipChanged(int)), this, SLOT(ipChanged(int)));
+    connect(mMainView, SIGNAL(remoteupgradeChanged(int)), this, SLOT(remoteupgradeChanged(int)));
+    connect(mMainView, SIGNAL(dispctrlChanged(int)), this, SLOT(dispctrlChanged(int)));
 }
 
 void JetsonTx2FlashingInfo::button_test(QString str)
 {
     qDebug() << str;
+    m_projectList << "test" << "test2";
+    emit projectListChanged();
+}
+
+const QStringList JetsonTx2FlashingInfo::projectList()
+{
+    return m_projectList;
+}
+
+const QStringList JetsonTx2FlashingInfo::displayList()
+{
+    return m_displayList;
+}
+
+const QStringList JetsonTx2FlashingInfo::ipList()
+{
+    return m_ipList;
+}
+
+const QStringList JetsonTx2FlashingInfo::upgradeAppList()
+{
+    return m_upgradeAppList;
+}
+
+const QStringList JetsonTx2FlashingInfo::dispAppList()
+{
+    return m_dispAppList;
 }
 
 void JetsonTx2FlashingInfo::windowCreated()
@@ -53,7 +85,7 @@ void JetsonTx2FlashingInfo::loadSettingInfo(const QString &path)
     bool last_project_exists = getLastProject();
 
     // IP
-    QDomNodeList IpList = top_element.elementsByTagName("DISPLAY_OUT");
+    QDomNodeList IpList = top_element.elementsByTagName("IP_LIST");
     for(int index=0; index<IpList.count(); index++)
     {
         QDomElement element = IpList.at(index).toElement();
@@ -68,14 +100,6 @@ void JetsonTx2FlashingInfo::loadSettingInfo(const QString &path)
 
         QString dst_path = element.attribute("DST_PATH");
         if(!dst_path.isNull()) p_ip->dst_path = dst_path;
-
-        if(last_project_exists)
-        {
-            if(name == currentStatus.ip)
-            {
-                currentStatus.m_ip = p_ip;
-            }
-        }
     }
 
     // display out
@@ -89,6 +113,7 @@ void JetsonTx2FlashingInfo::loadSettingInfo(const QString &path)
 
         DisplayOut * p_disp = new DisplayOut(name, base_path);
         listDispOut.append(p_disp);
+        m_displayList.append(name);
 
         QString dts = element.attribute("DTS");
         if(!dts.isNull()) p_disp->dts = dts;
@@ -120,17 +145,32 @@ void JetsonTx2FlashingInfo::loadSettingInfo(const QString &path)
             if(search != Q_NULLPTR)
             {
                 p_disp->ip_list.append(search);
+                m_ipList.append(ip_name);
+
+                if((last_project_exists) && (ip_name == currentStatus.ip))
+                {
+                    currentStatus.m_ip = search;
+                }
+                else if(currentStatus.m_ip == Q_NULLPTR)
+                {
+                    currentStatus.ip = ip_name;
+                    currentStatus.m_ip = search;
+                }
             }
         }
 
-        if(last_project_exists)
+        if((last_project_exists)&&(name == currentStatus.display_out))
         {
-            if(name == currentStatus.display_out)
-            {
-                currentStatus.m_display_out = p_disp;
-            }
+            currentStatus.m_display_out = p_disp;
+        }
+        else if(index == 0)
+        {
+            currentStatus.display_out = name;
+            currentStatus.m_display_out = p_disp;
         }
     }
+    emit displayListChanged();
+    emit ipListChanged();
 
     // project
     QDomNodeList NodeList = top_element.elementsByTagName("PROJECT_lIST");
@@ -150,15 +190,22 @@ void JetsonTx2FlashingInfo::loadSettingInfo(const QString &path)
 
         Project * p_project = new Project(name, p_disp);
         listProject.append(p_project);
+        m_projectList.append(name);
 
-        if(last_project_exists)
+        if((last_project_exists)&&(name == currentStatus.project))
         {
-            if(name == currentStatus.project)
-            {
-                currentStatus.m_project = p_project;
-            }
+            currentStatus.m_project = p_project;
+        }
+        else if(index == 0)
+        {
+            currentStatus.project = name;
+            currentStatus.m_project = p_project;
         }
     }
+    emit projectListChanged();
+
+    updateUpgradeAppList();
+    updateDispAppList();
 
     return;
 }
@@ -203,9 +250,17 @@ void JetsonTx2FlashingInfo::saveSettingInfo()
     }
 }
 
-void JetsonTx2FlashingInfo::projectChanged(const QString &project)
+void JetsonTx2FlashingInfo::projectChanged(int project)
 {
-    Project * search = findObjByName(listProject, project);
+    if(project < 0)
+    {
+        return;
+    }
+    if(m_projectList.count() <= project)
+    {
+        return;
+    }
+    Project * search = findObjByName(listProject, m_projectList.at(project));
     if(search != Q_NULLPTR)
     {
         currentStatus.project = project;
@@ -219,19 +274,38 @@ void JetsonTx2FlashingInfo::projectChanged(const QString &project)
     }
 }
 
-void JetsonTx2FlashingInfo::displayChanged(const QString &display_out)
+void JetsonTx2FlashingInfo::displayChanged(int display_out)
 {
-    DisplayOut * search = findObjByName(listDispOut, display_out);
+    if(display_out < 0)
+    {
+        return;
+    }
+    if(m_displayList.count() <= display_out)
+    {
+        return;
+    }
+    DisplayOut * search = findObjByName(listDispOut, m_displayList.at(display_out));
     if(search != Q_NULLPTR)
     {
         currentStatus.display_out = display_out;
         currentStatus.m_display_out = search;
+
+        updateUpgradeAppList();
+        updateDispAppList();
     }
 }
 
-void JetsonTx2FlashingInfo::ipChanged(const QString &ip)
+void JetsonTx2FlashingInfo::ipChanged(int ip)
 {
-    Ip * search = findObjByName(listIp, ip);
+    if(ip < 0)
+    {
+        return;
+    }
+    if(m_ipList.count() <= ip)
+    {
+        return;
+    }
+    Ip * search = findObjByName(listIp, m_ipList.at(ip));
     if(search != Q_NULLPTR)
     {
         currentStatus.ip = ip;
@@ -239,14 +313,30 @@ void JetsonTx2FlashingInfo::ipChanged(const QString &ip)
     }
 }
 
-void JetsonTx2FlashingInfo::remoteupgradeChanged(const QString &remote_upgrade)
+void JetsonTx2FlashingInfo::remoteupgradeChanged(int remote_upgrade)
 {
-    currentStatus.remote_upgrade = remote_upgrade;
+    if(remote_upgrade < 0)
+    {
+        return;
+    }
+    if(m_upgradeAppList.count() <= remote_upgrade)
+    {
+        return;
+    }
+    currentStatus.remote_upgrade = m_upgradeAppList.at(remote_upgrade);
 }
 
-void JetsonTx2FlashingInfo::dispctrlChanged(const QString &dispctrl)
+void JetsonTx2FlashingInfo::dispctrlChanged(int dispctrl)
 {
-    currentStatus.disp_ctrl = dispctrl;
+    if(dispctrl < 0)
+    {
+        return;
+    }
+    if(m_dispAppList.count() <= dispctrl)
+    {
+        return;
+    }
+    currentStatus.disp_ctrl = m_dispAppList.at(dispctrl);
 }
 
 bool JetsonTx2FlashingInfo::getLastProject()
@@ -310,6 +400,69 @@ bool JetsonTx2FlashingInfo::getLastProject()
     return true;
 }
 
+void JetsonTx2FlashingInfo::updateUpgradeAppList()
+{
+    DisplayOut * p_disp = currentStatus.m_display_out;
+    if(p_disp == Q_NULLPTR)
+    {
+        return;
+    }
+
+    QString dir_path = p_disp->base_path + "/" + p_disp->rsc_dir;
+    QDir dir(dir_path);
+    if(!dir.exists())
+    {
+        return;
+    }
+
+    QStringList filters;
+    filters << "RemoteUpgrade*";
+    QStringList results = dir.entryList(filters, QDir::Files | QDir::NoDot | QDir::NoDotDot);
+
+    m_upgradeAppList.clear();
+    foreach(QString file, results)
+    {
+        m_upgradeAppList.append(file.remove(0, 14));
+    }
+    if(results.count() > 0)
+    {
+        currentStatus.remote_upgrade = m_upgradeAppList.at(0);
+    }
+    emit upgradeAppListChanged();
+}
+
+void JetsonTx2FlashingInfo::updateDispAppList()
+{
+    DisplayOut * p_disp = currentStatus.m_display_out;
+    if(p_disp == Q_NULLPTR)
+    {
+        return;
+    }
+
+    QString dir_path = p_disp->base_path + "/" + p_disp->app_dir;
+    QDir dir(dir_path);
+    if(!dir.exists())
+    {
+        return;
+    }
+
+    QStringList filters;
+    filters << p_disp->app_prefix + "*";
+    qDebug() << p_disp->app_prefix;
+    QStringList results = dir.entryList(filters, QDir::Files | QDir::NoDot | QDir::NoDotDot);
+
+    m_dispAppList.clear();
+    foreach(QString file, results)
+    {
+        m_dispAppList.append(file.remove(0, p_disp->app_prefix.length()-1));
+    }
+    if(results.count() > 0)
+    {
+        currentStatus.disp_ctrl = m_dispAppList.at(0);
+    }
+    emit dispAppListChanged();
+}
+
 void JetsonTx2FlashingInfo::clearSettingInfo()
 {
     while(listProject.count() > 0)
@@ -324,5 +477,12 @@ void JetsonTx2FlashingInfo::clearSettingInfo()
     {
         delete listIp.takeAt(0);
     }
+
+    m_projectList.clear();
+    m_displayList.clear();
+    m_ipList.clear();
+    m_upgradeAppList.clear();
+    m_dispAppList.clear();
+
     currentStatus.clear();
 }
