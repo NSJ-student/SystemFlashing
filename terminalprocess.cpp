@@ -30,6 +30,11 @@ TerminalProcess::~TerminalProcess()
     delete m_recvWork;
 }
 
+void TerminalProcess::setWindow(QQuickWindow *window)
+{
+
+}
+
 void TerminalProcess::write(const QString &command)
 {
     if(m_process.isWritable())

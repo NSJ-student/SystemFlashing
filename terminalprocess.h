@@ -54,6 +54,7 @@ public:
     TerminalProcess(QObject *parent = Q_NULLPTR);
     ~TerminalProcess();
 
+    void setWindow(QQuickWindow * window);
     void write(const QString &command);
 
 signals:
@@ -63,6 +64,8 @@ public slots:
     void finished();
 
 private:
+    QQuickWindow* mMainView;
+
     QProcess m_process;
     QThread m_recvThread;
     TerminalWork * m_recvWork;

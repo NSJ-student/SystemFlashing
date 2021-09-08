@@ -64,6 +64,9 @@ Window {
             anchors.bottomMargin: 5
             anchors.topMargin: 5
             selectedTextColor: "#000000"
+            Keys.onPressed: {
+                event.key;
+            }
         }
 
     }

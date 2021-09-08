@@ -145,28 +145,43 @@ void JetsonTx2FlashingInfo::loadSettingInfo(const QString &path)
             if(search != Q_NULLPTR)
             {
                 p_disp->ip_list.append(search);
-                m_ipList.append(ip_name);
-
-                if((last_project_exists) && (ip_name == currentStatus.ip))
-                {
-                    currentStatus.m_ip = search;
-                }
-                else if(currentStatus.m_ip == Q_NULLPTR)
-                {
-                    currentStatus.ip = ip_name;
-                    currentStatus.m_ip = search;
-                }
             }
         }
 
         if((last_project_exists)&&(name == currentStatus.display_out))
         {
             currentStatus.m_display_out = p_disp;
+            foreach(Ip * ip_item, p_disp->ip_list)
+            {
+                m_ipList.append(ip_item->name);
+                if((last_project_exists) && (ip_item->name == currentStatus.ip))
+                {
+                    currentStatus.m_ip = ip_item;
+                }
+                else if(currentStatus.m_ip == Q_NULLPTR)
+                {
+                    currentStatus.ip = ip_item->name;
+                    currentStatus.m_ip = ip_item;
+                }
+            }
         }
         else if(index == 0)
         {
             currentStatus.display_out = name;
             currentStatus.m_display_out = p_disp;
+            foreach(Ip * ip_item, p_disp->ip_list)
+            {
+                m_ipList.append(ip_item->name);
+                if((last_project_exists) && (ip_item->name == currentStatus.ip))
+                {
+                    currentStatus.m_ip = ip_item;
+                }
+                else if(currentStatus.m_ip == Q_NULLPTR)
+                {
+                    currentStatus.ip = ip_item->name;
+                    currentStatus.m_ip = ip_item;
+                }
+            }
         }
     }
     emit displayListChanged();
@@ -271,6 +286,18 @@ void JetsonTx2FlashingInfo::projectChanged(int project)
             currentStatus.display_out = search->display_out->name;
             currentStatus.ip = search->display_out->ip_list.at(0)->name;
         }
+
+        m_ipList.clear();
+        foreach(Ip * ip_item, search->display_out->ip_list)
+        {
+            m_ipList.append(ip_item->name);
+            if(m_ipList.count() == 1)
+            {
+                currentStatus.ip = ip_item->name;
+                currentStatus.m_ip = ip_item;
+            }
+        }
+        emit ipListChanged();
     }
 }
 
@@ -289,6 +316,17 @@ void JetsonTx2FlashingInfo::displayChanged(int display_out)
     {
         currentStatus.display_out = display_out;
         currentStatus.m_display_out = search;
+        m_ipList.clear();
+        foreach(Ip * ip_item, search->ip_list)
+        {
+            m_ipList.append(ip_item->name);
+            if(m_ipList.count() == 1)
+            {
+                currentStatus.ip = ip_item->name;
+                currentStatus.m_ip = ip_item;
+            }
+        }
+        emit ipListChanged();
 
         updateUpgradeAppList();
         updateDispAppList();

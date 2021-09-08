@@ -3,6 +3,7 @@
 #include <QQuickView>
 #include <QQmlContext>
 #include "jetsontx2flashinginfo.h"
+#include "terminalprocess.h"
 
 
 int main(int argc, char *argv[])
@@ -14,6 +15,7 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
 
     JetsonTx2FlashingInfo * tx2_info = new JetsonTx2FlashingInfo();
+    TerminalProcess * terminal = new TerminalProcess();
     QQmlApplicationEngine engine;
 
     QQmlContext *ownContext = engine.rootContext();
@@ -35,6 +37,7 @@ int main(int argc, char *argv[])
     QObject *root = engine.rootObjects()[0];
     //qrc:/main.qml를 등록한 엔진의 object값을 window타입으로 변경해준다.
     tx2_info->setWindow(qobject_cast<QQuickWindow *>(root));
+    terminal->setWindow(qobject_cast<QQuickWindow *>(root));
 
     if (engine.rootObjects().isEmpty())
         return -1;
