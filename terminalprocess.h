@@ -55,12 +55,13 @@ public:
     ~TerminalProcess();
 
     void setWindow(QQuickWindow * window);
-    void write(const QString &command);
 
 signals:
     void recv(const QString &data);
 
 public slots:
+    void write(const QString &command);
+    void inputKey(const QString &key);
     void finished();
 
 private:

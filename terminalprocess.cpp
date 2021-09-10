@@ -2,6 +2,10 @@
 
 TerminalProcess::TerminalProcess(QObject *parent) : QObject(parent)
 {
+    //class를 qml에서 사용하기 위해서 등록해주는 부분
+    qmlRegisterType<TerminalProcess>("TerminalProcess", 1, 0,
+                                     "TerminalProcess");
+
     m_process.setProgram("sh");
     m_process.start();
 
@@ -32,7 +36,8 @@ TerminalProcess::~TerminalProcess()
 
 void TerminalProcess::setWindow(QQuickWindow *window)
 {
-
+    mMainView = window;
+    connect(mMainView, SIGNAL(keyPressed(QString)), this, SLOT(inputKey(QString)));
 }
 
 void TerminalProcess::write(const QString &command)
@@ -41,6 +46,11 @@ void TerminalProcess::write(const QString &command)
     {
         m_process.write(command.toUtf8().data(), command.length());
     }
+}
+
+void TerminalProcess::inputKey(const QString &key)
+{
+    qDebug() << key;
 }
 
 void TerminalProcess::finished()

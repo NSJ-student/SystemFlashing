@@ -5,6 +5,7 @@ import QtQuick.Layouts 1.15
 import QtQuick.Extras 1.4
 import QtQuick.Dialogs 1.3
 import JetsonTx2FlashingInfo 1.0
+import TerminalProcess 1.0
 import "."
 
 
@@ -27,11 +28,17 @@ Window {
     signal remoteupgradeChanged(int index);
     signal dispctrlChanged(int index);
 
-    //qml에 클래스를 선언해 주는 곳
+    signal keyPressed(string key);
+
     JetsonTx2FlashingInfo
     {
-        //클래스를 선언해주고 id를 등록
         id:jetson_flashing_info;
+    }
+
+
+    TerminalProcess
+    {
+        id:teminal;
     }
 
     Component.onCompleted: {
@@ -65,7 +72,8 @@ Window {
             anchors.topMargin: 5
             selectedTextColor: "#000000"
             Keys.onPressed: {
-                event.key;
+                keyPressed(event.text);
+                textEdit.insert(textEdit.length, event.text);
             }
         }
 
