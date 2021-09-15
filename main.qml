@@ -11,9 +11,9 @@ import "."
 
 Window {
     width: 640
-    height: 480
-    minimumHeight: 480
-    maximumHeight: 480
+    height: 500
+    minimumHeight: 500
+    maximumHeight: 500
     minimumWidth: 640
     maximumWidth: 640
     visible: true
@@ -29,6 +29,7 @@ Window {
     signal dispctrlChanged(int index);
 
     signal keyPressed(string key);
+    signal run();
 
     JetsonTx2FlashingInfo
     {
@@ -42,7 +43,11 @@ Window {
     }
 
     Component.onCompleted: {
+        run();
+    }
 
+    function qmlProcessRecv(data){
+        textEdit.insert(textEdit.length, data);
     }
 
     onWindowStateChanged: {
@@ -54,28 +59,35 @@ Window {
         x: 30
         y: 312
         width: 580
-        height: 152
+        height: 169
         color: "#000000"
 
-        TextEdit {
-            id: textEdit
+        ScrollView {
+            id: textScroll
             anchors.fill: parent
-            color: "#ffffff"
-            selectByMouse: true
-            readOnly: true
-            font.pixelSize: 12
-            selectionColor: "#ffffff"
-            font.family: "Courier"
-            anchors.rightMargin: 5
-            anchors.leftMargin: 5
-            anchors.bottomMargin: 5
-            anchors.topMargin: 5
-            selectedTextColor: "#000000"
-            Keys.onPressed: {
-                keyPressed(event.text);
-                textEdit.insert(textEdit.length, event.text);
+
+            TextEdit {
+                id: textEdit
+                anchors.fill: parent
+                color: "#ffffff"
+                textFormat: Text.PlainText
+                selectByMouse: true
+                readOnly: true
+                font.pixelSize: 12
+                selectionColor: "#ffffff"
+                font.family: "Courier"
+                anchors.rightMargin: 5
+                anchors.leftMargin: 5
+                anchors.bottomMargin: 0
+                anchors.topMargin: 0
+                selectedTextColor: "#000000"
+                Keys.onPressed: {
+                    keyPressed(event.text);
+//                    textEdit.insert(textEdit.length, event.text);
+                }
             }
         }
+
 
     }
 

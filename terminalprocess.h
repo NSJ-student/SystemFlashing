@@ -19,19 +19,24 @@ public:
     }
 
 signals:
-    void recv(const QString &data);
+    void recv(QVariant data);
     void finished();
 
 public slots:
     void body()
     {
+        qDebug() << "start";
         try
         {
-            while(m_recvProcess->isReadable())
+            while(1)
             {
-                QByteArray read = m_recvProcess->readAll();
-                emit recv(QString(read));
+                if(m_recvProcess->bytesAvailable() > 0)
+                {
+                    QByteArray read = m_recvProcess->readAll();
+                    emit recv(QVariant(QString(read)));
 
+//                    qDebug() << QString(read);
+                }
                 QThread::msleep(1);
             }
         }
@@ -57,9 +62,10 @@ public:
     void setWindow(QQuickWindow * window);
 
 signals:
-    void recv(const QString &data);
+    void recv(QVariant data);
 
 public slots:
+    void start();
     void write(const QString &command);
     void inputKey(const QString &key);
     void finished();

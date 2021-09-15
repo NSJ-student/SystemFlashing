@@ -5,16 +5,20 @@ TerminalProcess::TerminalProcess(QObject *parent) : QObject(parent)
     //class를 qml에서 사용하기 위해서 등록해주는 부분
     qmlRegisterType<TerminalProcess>("TerminalProcess", 1, 0,
                                      "TerminalProcess");
-
+#if defined(Q_OS_LINUX)
     m_process.setProgram("sh");
+#else
+    m_process.setProgram("cmd");
+#endif
     m_process.start();
 
     m_recvWork = new TerminalWork(&m_process);
     m_recvWork->moveToThread(&m_recvThread);
 
     QObject::connect(&m_recvThread, SIGNAL(started()), m_recvWork, SLOT(body()));
-    QObject::connect(m_recvWork, SIGNAL(recv(QString)), this, SIGNAL(recv(QString)));
+    QObject::connect(m_recvWork, SIGNAL(recv(QVariant)), this, SIGNAL(recv(QVariant)));
     QObject::connect(m_recvWork, SIGNAL(finished()), this, SLOT(finished()));
+
 }
 
 TerminalProcess::~TerminalProcess()
@@ -37,7 +41,20 @@ TerminalProcess::~TerminalProcess()
 void TerminalProcess::setWindow(QQuickWindow *window)
 {
     mMainView = window;
-    connect(mMainView, SIGNAL(keyPressed(QString)), this, SLOT(inputKey(QString)));
+    QObject::connect(mMainView, SIGNAL(keyPressed(QString)), this, SLOT(inputKey(QString)));
+    QObject::connect(mMainView, SIGNAL(run()), this, SLOT(start()));
+    QObject::connect(this, SIGNAL(recv(QVariant)), mMainView, SLOT(qmlProcessRecv(QVariant)));
+
+    if(!m_recvThread.isRunning())
+    {
+        qDebug() << "process start";
+        m_recvThread.start();
+    }
+}
+
+void TerminalProcess::start()
+{
+    qDebug() << "d start";
 }
 
 void TerminalProcess::write(const QString &command)
@@ -50,7 +67,17 @@ void TerminalProcess::write(const QString &command)
 
 void TerminalProcess::inputKey(const QString &key)
 {
-    qDebug() << key;
+    if(m_process.isWritable())
+    {
+        if(key == "\r")
+        {
+            m_process.write("\n");
+        }
+        else
+        {
+            m_process.write(key.toUtf8().data());
+        }
+    }
 }
 
 void TerminalProcess::finished()
