@@ -16,18 +16,6 @@ JetsonTx2FlashingInfo::~JetsonTx2FlashingInfo()
 void JetsonTx2FlashingInfo::setWindow(QQuickWindow *window)
 {
     mMainView = window;
-    connect(mMainView, SIGNAL(projectChanged(int)), this, SLOT(projectChanged(int)));
-    connect(mMainView, SIGNAL(displayChanged(int)), this, SLOT(displayChanged(int)));
-    connect(mMainView, SIGNAL(ipChanged(int)), this, SLOT(ipChanged(int)));
-    connect(mMainView, SIGNAL(remoteupgradeChanged(int)), this, SLOT(remoteupgradeChanged(int)));
-    connect(mMainView, SIGNAL(dispctrlChanged(int)), this, SLOT(dispctrlChanged(int)));
-}
-
-void JetsonTx2FlashingInfo::button_test(QString str)
-{
-    qDebug() << str;
-    m_projectList << "test" << "test2";
-    emit projectListChanged();
 }
 
 const QStringList JetsonTx2FlashingInfo::projectList()
@@ -285,6 +273,7 @@ void JetsonTx2FlashingInfo::projectChanged(int project)
         {
             currentStatus.display_out = search->display_out->name;
             currentStatus.ip = search->display_out->ip_list.at(0)->name;
+            qDebug() << "project changed: " << currentStatus.display_out;
         }
 
         m_ipList.clear();
@@ -297,7 +286,9 @@ void JetsonTx2FlashingInfo::projectChanged(int project)
                 currentStatus.m_ip = ip_item;
             }
         }
-        emit ipListChanged();
+
+//        emit displayOutChanged();
+        emit setDisplayOut(QVariant(currentStatus.display_out));
     }
 }
 

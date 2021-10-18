@@ -97,6 +97,7 @@ public:
 class JetsonTx2FlashingInfo : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString displayOut READ displayOut NOTIFY displayOutChanged)
     Q_PROPERTY(QStringList projectList READ projectList NOTIFY projectListChanged)
     Q_PROPERTY(QStringList displayList READ displayList NOTIFY displayListChanged)
     Q_PROPERTY(QStringList ipList READ ipList NOTIFY ipListChanged)
@@ -108,13 +109,13 @@ public:
     ~JetsonTx2FlashingInfo();
 
     void setWindow(QQuickWindow * window);
-    Q_INVOKABLE void button_test(QString str);
 
     const QStringList projectList();
     const QStringList displayList();
     const QStringList ipList();
     const QStringList upgradeAppList();
     const QStringList dispAppList();
+    const QString displayOut() { return currentStatus.display_out; }
 
 signals:
     void projectListChanged();
@@ -122,6 +123,8 @@ signals:
     void ipListChanged();
     void upgradeAppListChanged();
     void dispAppListChanged();
+    void displayOutChanged();
+    void setDisplayOut(QVariant data);
 
 public slots:
     void windowCreated();
