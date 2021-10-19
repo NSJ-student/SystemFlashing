@@ -44,6 +44,7 @@ public:
     QString dts;
     QString base_path;
     QString app_prefix;
+    QString major_prefix;
     QString app_dir;
     QString rsc_dir;
     QString dst_path;
@@ -97,7 +98,6 @@ public:
 class JetsonTx2FlashingInfo : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString displayOut READ displayOut NOTIFY displayOutChanged)
     Q_PROPERTY(QStringList projectList READ projectList NOTIFY projectListChanged)
     Q_PROPERTY(QStringList displayList READ displayList NOTIFY displayListChanged)
     Q_PROPERTY(QStringList ipList READ ipList NOTIFY ipListChanged)
@@ -115,7 +115,6 @@ public:
     const QStringList ipList();
     const QStringList upgradeAppList();
     const QStringList dispAppList();
-    const QString displayOut() { return currentStatus.display_out; }
 
 signals:
     void projectListChanged();
@@ -123,8 +122,7 @@ signals:
     void ipListChanged();
     void upgradeAppListChanged();
     void dispAppListChanged();
-    void displayOutChanged();
-    void setDisplayOut(QVariant data);
+    void currentDispOut(QVariant data);
 
 public slots:
     void windowCreated();
@@ -132,15 +130,16 @@ public slots:
     void loadSettingInfo(const QString &path);
     void saveSettingInfo();
 
-    void projectChanged(int project);
-    void displayChanged(int display_out);
-    void ipChanged(int ip);
-    void remoteupgradeChanged(int remote_upgrade);
-    void dispctrlChanged(int dispctrl);
+    void onProjectChanged(int project);
+    void onDisplayChanged(int display_out);
+    void onIpChanged(int ip);
+    void onRemoteupgradeChanged(int remote_upgrade);
+    void onDispctrlChanged(int dispctrl);
 
+    void flashing();
 
 private:
-    QQuickWindow* mMainView;
+    QQuickWindow* mQmlView;
 
     QList<Project*> listProject;
     QList<DisplayOut*> listDispOut;
@@ -171,6 +170,20 @@ private:
         }
 
         return Q_NULLPTR;
+    }
+
+    template <typename T>
+    int findIndexByName(const QList<T *> &list, const QString &name)
+    {
+        for(int index=0; index<list.count(); index++)
+        {
+            if(list.at(index)->name == name)
+            {
+                return index;
+            }
+        }
+
+        return -1;
     }
 };
 

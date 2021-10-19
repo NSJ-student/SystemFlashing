@@ -17,8 +17,7 @@ Window {
     visible: true
     title: qsTr("Jetson TX2 flashing")
 
-    signal loadSetting();
-    signal saveSetting();
+    signal flashImage();
 
     signal projectChanged(int index);
     signal displayChanged(int index);
@@ -27,42 +26,32 @@ Window {
     signal dispctrlChanged(int index);
 
     signal keyPressed(string key);
-    signal run();
 
-    JetsonTx2FlashingInfo
-    {
-        id:jetson_flashing_info;
-    }
-
-    TerminalProcess
-    {
-        id:teminal;
+    function qmlDisplayOut(data) {
+        if(cbDisplayOut.count > 0)
+        {
+            cbDisplayOut.currentIndex = data;
+        }
     }
 
     function qmlProcessRecv(data){
         textEdit.insert(textEdit.length, data);
     }
 
-    function onQmlDisplayOut(data) {
-        cbDisplayOut.currentText = data;
-        console.log("onQmlDisplayOut: " + data);
-    }
-/*
-    Connections {
+    Connections{
         target: jetson_obj
-
-        onDisplayOutChanged: {
-            cbDisplayOut.currentText = jetson_obj.displayOut;
-            console.log("setDisplayOut: " + jetson_obj.displayOut);
-        }
     }
-*/
+
+    Connections{
+        target: terminal_obj
+    }
+
     Component.onCompleted: {
-        run();
+        console.log("window completed");
     }
 
     onWindowStateChanged: {
-        console.log("state: " + windowState);
+        console.log("windowState: " + windowState);
     }
 
     ColumnLayout {
@@ -88,9 +77,9 @@ Window {
                 ComboBox {
                     id: cbProject
                     Layout.columnSpan: 3
-                    model: jetson_flashing_info.projectList
+                    model: jetson_obj.projectList
                     onCurrentIndexChanged: {
-                        jetson_flashing_info.projectChanged(currentIndex);
+                        projectChanged(currentIndex);
                     }
                 }
 
@@ -117,9 +106,9 @@ Window {
                     id: cbDisplayOut
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                    model: jetson_flashing_info.displayList
+                    model: jetson_obj.displayList
                     onCurrentIndexChanged: {
-                        jetson_flashing_info.displayChanged(currentIndex);
+                        displayChanged(currentIndex);
                     }
                 }
 
@@ -134,9 +123,9 @@ Window {
                     id: cbRemoteUpgrade
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                    model: jetson_flashing_info.upgradeAppList
+                    model: jetson_obj.upgradeAppList
                     onCurrentIndexChanged: {
-                        jetson_flashing_info.remoteupgradeChanged(currentIndex);
+                        remoteupgradeChanged(currentIndex);
                     }
                 }
 
@@ -168,9 +157,9 @@ Window {
                     id: cbIp
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                    model: jetson_flashing_info.ipList
+                    model: jetson_obj.ipList
                     onCurrentIndexChanged: {
-                        jetson_flashing_info.ipChanged(currentIndex);
+                        ipChanged(currentIndex);
                     }
                 }
 
@@ -185,9 +174,9 @@ Window {
                     id: cbDispCtrl
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                    model: jetson_flashing_info.dispAppList
+                    model: jetson_obj.dispAppList
                     onCurrentIndexChanged: {
-                        jetson_flashing_info.dispctrlChanged(currentIndex);
+                        dispctrlChanged(currentIndex);
                     }
                 }
 
@@ -219,13 +208,14 @@ Window {
                         id: btnLoadLastSetting
                         text: qsTr("Load")
                         onClicked: {
-                            jetson_flashing_info.loadSettingInfo("D:\\Projects\\JetsonTX2\\Software\\SystemFlashing\\init_test.xml");
+                            jetson_obj.loadSettingInfo("D:\\Projects\\JetsonTX2\\Software\\SystemFlashing\\init_test.xml");
                         }
                     }
                     Button {
                         id: btnSetConfig
                         text: qsTr("Flashing")
                         onClicked: {
+                            flashImage();
                         }
                     }
                 }

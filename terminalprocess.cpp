@@ -16,13 +16,16 @@ TerminalProcess::TerminalProcess(QObject *parent) : QObject(parent)
     m_recvWork->moveToThread(&m_recvThread);
 
     QObject::connect(&m_recvThread, SIGNAL(started()), m_recvWork, SLOT(body()));
-    QObject::connect(m_recvWork, SIGNAL(recv(QVariant)), this, SIGNAL(recv(QVariant)));
+    QObject::connect(m_recvWork, SIGNAL(recv(QVariant)), this, SIGNAL(recv(QVariant)),
+                     Qt::QueuedConnection);
     QObject::connect(m_recvWork, SIGNAL(finished()), this, SLOT(finished()));
 }
 
 TerminalProcess::~TerminalProcess()
 {
     m_process.close();
+    m_process.kill();
+    m_recvWork->stop();
 
     if(m_recvThread.isRunning())
     {
@@ -41,9 +44,12 @@ void TerminalProcess::setWindow(QQuickWindow *window)
 {
     mMainView = window;
 
+    QObject::connect(mMainView, SIGNAL(keyPressed(QString)), this, SLOT(inputKey(QString)));
+    QObject::connect(this, SIGNAL(recv(QVariant)), mMainView, SLOT(qmlProcessRecv(QVariant)),
+                     Qt::QueuedConnection);
+
     if(!m_recvThread.isRunning())
     {
-        qDebug() << "process start";
         m_recvThread.start();
     }
 }

@@ -16,6 +16,12 @@ public:
         QObject(parent)
     {
         m_recvProcess = p_process;
+        cancel = false;
+    }
+
+    void stop()
+    {
+        cancel = true;
     }
 
 signals:
@@ -25,11 +31,16 @@ signals:
 public slots:
     void body()
     {
-        qDebug() << "start";
+        qDebug() << "cmd rx waiting...";
+        cancel = false;
         try
         {
             while(1)
             {
+                if(cancel)
+                {
+                    break;
+                }
                 if(m_recvProcess->bytesAvailable() > 0)
                 {
                     QByteArray read = m_recvProcess->readAll();
@@ -37,7 +48,7 @@ public slots:
 
 //                    qDebug() << QString(read);
                 }
-                QThread::msleep(1);
+                QThread::msleep(10);
             }
         }
         catch (...)
@@ -50,6 +61,7 @@ public slots:
 
 private:
     QProcess * m_recvProcess;
+    bool cancel;
 };
 
 class TerminalProcess : public QObject
