@@ -13,17 +13,21 @@ int main(int argc, char *argv[])
 #endif
 
     QGuiApplication app(argc, argv);
-
-    JetsonTx2FlashingInfo * tx2_info = new JetsonTx2FlashingInfo();
-    TerminalProcess * terminal = new TerminalProcess();
     QQmlApplicationEngine engine;
 
+    // create object
+    JetsonTx2FlashingInfo tx2_info;
+    TerminalProcess terminal;
+
+    // set context property
     QQmlContext *ownContext = engine.rootContext();
-    ownContext->setContextProperty("model_project", QVariant::fromValue(tx2_info->projectList()));
-    ownContext->setContextProperty("model_display", QVariant::fromValue(tx2_info->displayList()));
-    ownContext->setContextProperty("model_ip", QVariant::fromValue(tx2_info->ipList()));
-    ownContext->setContextProperty("model_upgradeApp", QVariant::fromValue(tx2_info->upgradeAppList()));
-    ownContext->setContextProperty("model_dispApp", QVariant::fromValue(tx2_info->dispAppList()));
+    ownContext->setContextProperty("jetson_obj", &tx2_info);
+    ownContext->setContextProperty("terminal_obj", &terminal);
+    ownContext->setContextProperty("model_project", QVariant::fromValue(tx2_info.projectList()));
+    ownContext->setContextProperty("model_display", QVariant::fromValue(tx2_info.displayList()));
+    ownContext->setContextProperty("model_ip", QVariant::fromValue(tx2_info.ipList()));
+    ownContext->setContextProperty("model_upgradeApp", QVariant::fromValue(tx2_info.upgradeAppList()));
+    ownContext->setContextProperty("model_dispApp", QVariant::fromValue(tx2_info.dispAppList()));
 
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
@@ -33,14 +37,18 @@ int main(int argc, char *argv[])
     }, Qt::QueuedConnection);
     engine.load(url);
 
-    //qrc:/main.qml를 등록한 엔진의 object값을 가져옴
-    QObject *root = engine.rootObjects()[0];
-    //qrc:/main.qml를 등록한 엔진의 object값을 window타입으로 변경해준다.
-    tx2_info->setWindow(qobject_cast<QQuickWindow *>(root));
-    terminal->setWindow(qobject_cast<QQuickWindow *>(root));
-
     if (engine.rootObjects().isEmpty())
         return -1;
+
+    //qrc:/main.qml를 등록한 엔진의 object값을 가져옴
+    QObject *root = engine.rootObjects().first();
+    //qrc:/main.qml를 등록한 엔진의 object값을 window타입으로 변경해준다.
+    QQuickWindow * p_window = qobject_cast<QQuickWindow *>(root);
+
+    // JetsonTx2FlashingInfo
+    tx2_info.setWindow(p_window);
+    // TerminalProcess
+    terminal.setWindow(p_window);
 
     return app.exec();
 }

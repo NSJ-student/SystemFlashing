@@ -10,14 +10,14 @@ import "."
 
 
 Window {
-    id: window
-    width: 640
+    width: 550
     height: 500
+    minimumWidth: 550
+    minimumHeight: 500
     visible: true
     title: qsTr("Jetson TX2 flashing")
 
-    signal loadSetting();
-    signal saveSetting();
+    signal flashImage();
 
     signal projectChanged(int index);
     signal displayChanged(int index);
@@ -26,56 +26,53 @@ Window {
     signal dispctrlChanged(int index);
 
     signal keyPressed(string key);
-    signal run();
 
-    JetsonTx2FlashingInfo
-    {
-        id:jetson_flashing_info;
-    }
-
-
-    TerminalProcess
-    {
-        id:teminal;
-    }
-
-    Component.onCompleted: {
-        run();
+    function qmlDisplayOut(data) {
+        if(cbDisplayOut.count > 0)
+        {
+            cbDisplayOut.currentIndex = data;
+        }
     }
 
     function qmlProcessRecv(data){
-        console.log("read");
+//        textArea.(data)
         textArea.insert(textArea.length, data);
         textArea.cursorPosition = textArea.length-1;
-        flickable.update();
+//        cmdWindow.update();
+    }
+
+    function qmlRemoveChar(){
+        textArea.remove(textArea.length-1, textArea.length);
+    }
+
+    Connections{
+        target: jetson_obj
+    }
+
+    Connections{
+        target: terminal_obj
+    }
+
+    Component.onCompleted: {
+        console.log("window completed");
     }
 
     onWindowStateChanged: {
-        console.log("state: " + windowState);
-    }
-
-    StatusIndicator {
-        id: statusSetting
-        x: 538
-        y: 42
+        console.log("windowState: " + windowState);
     }
 
     ColumnLayout {
-        id: columnLayout
-        anchors.rightMargin: 10
-        anchors.leftMargin: 10
-        anchors.bottomMargin: 10
-        anchors.topMargin: 10
-        spacing: 10
+        id: column
         anchors.fill: parent
+        spacing: 20
 
         GroupBox {
-            id: groupBox
-            x: 30
-            y: 24
-            width: 580
-            height: 271
-            Layout.fillWidth: true
+            id: controlBox
+            Layout.alignment: Qt.AlignLeft
+            Layout.fillWidth: false
+            Layout.leftMargin: 20
+            Layout.rightMargin: 20
+            Layout.topMargin: 20
             font.bold: true
 
             GridLayout {
@@ -86,95 +83,77 @@ Window {
 
                 ComboBox {
                     id: cbProject
-                    x: 0
-                    y: 9
-                    width: 126
-                    height: 36
-                    Layout.columnSpan: 4
-                    model: jetson_flashing_info.projectList
+                    Layout.columnSpan: 3
+                    model: jetson_obj.projectList
                     onCurrentIndexChanged: {
-                        jetson_flashing_info.projectChanged(currentIndex);
+                        projectChanged(currentIndex);
                     }
+                }
+
+                StatusIndicator {
+                    id: statusSetting
+                    Layout.columnSpan: 1
                 }
 
                 ToolSeparator {
                     id: toolSeparator
-                    x: 207
-                    y: 11
-                    width: 540
                     clip: false
                     Layout.columnSpan: 4
+                    Layout.fillWidth: true
                     orientation: Qt.Horizontal
                 }
 
                 Text {
                     id: text6
-                    x: 18
-                    y: 47
                     text: qsTr("Display Out")
                     font.pixelSize: 12
                 }
 
                 ComboBox {
                     id: cbDisplayOut
-                    x: 101
-                    y: 40
-                    width: 92
-                    height: 20
+                    Layout.fillWidth: true
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                    model: jetson_flashing_info.displayList
+                    model: jetson_obj.displayList
                     onCurrentIndexChanged: {
-                        jetson_flashing_info.displayChanged(currentIndex);
+                        displayChanged(currentIndex);
                     }
                 }
 
                 Text {
                     id: text4
-                    x: 216
-                    y: 79
+                    Layout.leftMargin: 20
                     text: qsTr("RemoteUpgrade")
                     font.pixelSize: 12
                 }
 
                 ComboBox {
                     id: cbRemoteUpgrade
-                    x: 321
-                    y: 40
-                    width: 92
-                    height: 20
+                    Layout.fillWidth: true
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                    model: jetson_flashing_info.upgradeAppList
+                    model: jetson_obj.upgradeAppList
                     onCurrentIndexChanged: {
-                        jetson_flashing_info.remoteupgradeChanged(currentIndex);
+                        remoteupgradeChanged(currentIndex);
                     }
                 }
 
                 Text {
                     id: txtCurrentDispOut
-                    x: 216
-                    y: 79
                     text: qsTr("")
                     font.pixelSize: 10
-                    Layout.rightMargin: 15
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     Layout.columnSpan: 2
                 }
 
                 Text {
                     id: txtCurrentRemoteUpgrade
-                    x: 216
-                    y: 79
                     text: qsTr("")
                     font.pixelSize: 10
-                    Layout.rightMargin: 15
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     Layout.columnSpan: 2
                 }
 
                 Text {
                     id: text3
-                    x: 18
-                    y: 79
                     width: 11
                     height: 12
                     text: qsTr("IP")
@@ -183,45 +162,35 @@ Window {
 
                 ComboBox {
                     id: cbIp
-                    x: 101
-                    y: 10
-                    width: 92
-                    height: 20
+                    Layout.fillWidth: true
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                    model: jetson_flashing_info.ipList
+                    model: jetson_obj.ipList
                     onCurrentIndexChanged: {
-                        jetson_flashing_info.ipChanged(currentIndex);
+                        ipChanged(currentIndex);
                     }
                 }
 
                 Text {
                     id: text2
-                    x: 216
-                    y: 47
+                    Layout.leftMargin: 20
                     text: qsTr("DISP_CTRL")
                     font.pixelSize: 12
                 }
 
                 ComboBox {
                     id: cbDispCtrl
-                    x: 321
-                    y: 72
-                    width: 92
-                    height: 20
+                    Layout.fillWidth: true
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                    model: jetson_flashing_info.dispAppList
+                    model: jetson_obj.dispAppList
                     onCurrentIndexChanged: {
-                        jetson_flashing_info.dispctrlChanged(currentIndex);
+                        dispctrlChanged(currentIndex);
                     }
                 }
 
                 Text {
                     id: txtCurrentIp
-                    x: 216
-                    y: 79
                     text: qsTr("")
                     font.pixelSize: 10
-                    Layout.rightMargin: 15
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     Layout.columnSpan: 2
                 }
@@ -232,38 +201,28 @@ Window {
                     y: 79
                     text: qsTr("")
                     font.pixelSize: 10
-                    Layout.rightMargin: 15
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     Layout.columnSpan: 2
                 }
 
                 RowLayout {
                     id: rowLayout
-                    x: 438
-                    y: 296
-                    width: 100
-                    height: 100
-                    Layout.rightMargin: 15
+                    Layout.fillWidth: true
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     Layout.columnSpan: 4
 
                     Button {
                         id: btnLoadLastSetting
-                        x: 384
-                        y: 185
                         text: qsTr("Load")
                         onClicked: {
-    //                        jetson_flashing_info.button_test("button1");
-                            jetson_flashing_info.loadSettingInfo("D:\\Projects\\JetsonTX2\\Software\\build-SystemFlashing-Desktop_Qt_5_15_1_MSVC2019_32bit-Debug\\debug\\init_test.xml");
+                            jetson_obj.loadSettingInfo("D:\\Projects\\JetsonTX2\\Software\\SystemFlashing\\init_test.xml");
                         }
                     }
                     Button {
                         id: btnSetConfig
-                        x: 384
-                        y: 185
                         text: qsTr("Flashing")
                         onClicked: {
-                            jetson_flashing_info.button_test("button2");
+                            flashImage();
                         }
                     }
                 }
@@ -274,20 +233,30 @@ Window {
         }
 
         Flickable {
-            id: flickable
-            contentWidth: textArea.width
-            contentHeight: textArea.height
+            id: cmdWindow
+            Layout.alignment: Qt.AlignCenter
             Layout.fillHeight: true
             Layout.fillWidth: true
+            Layout.leftMargin: 20
+            Layout.rightMargin: 20
+            Layout.bottomMargin: 20
 
             TextArea.flickable: TextArea {
                 id: textArea
                 color: "#ffffff"
                 selectionColor: "#ffffff"
                 selectedTextColor: "#000000"
-                selectByMouse: true
+
+                anchors.rightMargin: 5
+                anchors.leftMargin: 5
+                anchors.bottomMargin: 0
+                anchors.topMargin: 0
+                clip: true
+
                 font.pixelSize: 12
                 font.family: "Courier"
+
+                selectByMouse: true
                 wrapMode: Text.WordWrap
                 readOnly: true
 
@@ -304,7 +273,8 @@ Window {
                         textArea.clear();
                         flickable.update();
                     }
-                    else if(event.modifiers == Qt.NoModifier)
+                    else if((event.modifiers == Qt.NoModifier) ||
+                            (event.modifiers == Qt.ShiftModifier))
                     {
                         keyPressed(event.text);
                     }
@@ -314,6 +284,5 @@ Window {
             ScrollBar.vertical: ScrollBar {}
         }
     }
-
 
 }
