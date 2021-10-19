@@ -5,8 +5,10 @@ TerminalProcess::TerminalProcess(QObject *parent) : QObject(parent)
     //class를 qml에서 사용하기 위해서 등록해주는 부분
     qmlRegisterType<TerminalProcess>("TerminalProcess", 1, 0,
                                      "TerminalProcess");
+//    m_process.setReadChannel(QProcess::StandardOutput);
+//    m_process.setProcessChannelMode(QProcess::SeparateChannels);
 #if defined(Q_OS_LINUX)
-    m_process.setProgram("sh");
+    m_process.setProgram("/bin/bash");
 #else
     m_process.setProgram("cmd");
 #endif
