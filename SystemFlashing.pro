@@ -6,10 +6,20 @@ CONFIG += c++11
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+linux-g++ | linux-g++-64 | linux-g++-32 {
+QMAKE_LFLAGS += -no-pie
+# Tell qmake to use pkg-config to find QtGStreamer.
+CONFIG += link_pkgconfig
+
+PKGCONFIG += libusb-1.0
+
+}
+
 SOURCES += \
         jetsontx2flashinginfo.cpp \
         main.cpp \
-        terminalprocess.cpp
+        terminalprocess.cpp \
+    usbdetector.cpp
 
 RESOURCES += qml.qrc
 
@@ -26,7 +36,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     jetsontx2flashinginfo.h \
-    terminalprocess.h
+    terminalprocess.h \
+    usbdetector.h
 
 DISTFILES += \
     init.xml \

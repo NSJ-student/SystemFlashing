@@ -4,7 +4,7 @@
 #include <QQmlContext>
 #include "jetsontx2flashinginfo.h"
 #include "terminalprocess.h"
-
+#include "usbdetector.h"
 
 int main(int argc, char *argv[])
 {
@@ -18,6 +18,7 @@ int main(int argc, char *argv[])
     // create object
     JetsonTx2FlashingInfo tx2_info;
     TerminalProcess terminal;
+    UsbDetector usb_detector;
 
     // set context property
     QQmlContext *ownContext = engine.rootContext();
@@ -49,6 +50,8 @@ int main(int argc, char *argv[])
     tx2_info.setWindow(p_window);
     // TerminalProcess
     terminal.setWindow(p_window);
+    // UsbDetector
+    usb_detector.setWindow(p_window);
 
     return app.exec();
 }
