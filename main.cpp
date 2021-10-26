@@ -18,7 +18,9 @@ int main(int argc, char *argv[])
     // create object
     JetsonTx2FlashingInfo tx2_info;
     TerminalProcess terminal;
+#if defined(Q_OS_LINUX)
     UsbDetector usb_detector;
+#endif
 
     // set context property
     QQmlContext *ownContext = engine.rootContext();
@@ -50,8 +52,10 @@ int main(int argc, char *argv[])
     tx2_info.setWindow(p_window);
     // TerminalProcess
     terminal.setWindow(p_window);
+#if defined(Q_OS_LINUX)
     // UsbDetector
     usb_detector.setWindow(p_window);
+#endif
 
     return app.exec();
 }

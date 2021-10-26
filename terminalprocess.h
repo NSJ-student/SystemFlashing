@@ -6,6 +6,9 @@
 #include <QDebug>
 #include <QProcess>
 #include <QThread>
+#include <QTextCodec>
+
+#define USE_THREAD  0
 
 class TerminalWork : public QObject
 {
@@ -15,8 +18,13 @@ public:
     TerminalWork(QProcess * p_process, QObject *parent = Q_NULLPTR) :
         QObject(parent)
     {
+        qDebug() << QLocale::system().name();
+        m_codec = QTextCodec::codecForName("eucKR");
         m_recvProcess = p_process;
         cancel = false;
+    }
+    ~TerminalWork()
+    {
     }
 
     void stop()
@@ -44,9 +52,10 @@ public slots:
                 if(m_recvProcess->bytesAvailable() > 0)
                 {
                     QByteArray read = m_recvProcess->readAll();
-                    emit recv(QVariant(QString(read)));
+                    QString string = m_codec->toUnicode(read);
+                    emit recv(QVariant(string));
 
-//                    qDebug() << QString(read);
+                    qDebug() << string;
                 }
                 QThread::msleep(10);
             }
@@ -61,6 +70,7 @@ public slots:
 
 private:
     QProcess * m_recvProcess;
+    QTextCodec *m_codec;
     bool cancel;
 };
 
@@ -81,15 +91,24 @@ public slots:
     void start();
     void write(const QString &command);
     void inputKey(const QString &key);
+#if (USE_THREAD==1)
     void finished();
+#else
+    void finished(int exitCode, QProcess::ExitStatus exitStatus);
+    void readyStdOut();
+    void readyStdErr();
+#endif
 
 private:
     QQuickWindow* mMainView;
 
     QProcess m_process;
+#if (USE_THREAD==1)
     QThread m_recvThread;
     TerminalWork * m_recvWork;
-
+#else
+    QTextCodec *m_codec;
+#endif
     QString m_command;
 };
 

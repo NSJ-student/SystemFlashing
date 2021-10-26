@@ -257,7 +257,7 @@ Window {
                 font.family: "Courier"
 
                 selectByMouse: true
-                wrapMode: Text.WordWrap
+                wrapMode: Text.NoWrap
                 readOnly: true
 
                 background: Rectangle {
@@ -276,6 +276,8 @@ Window {
                     else if((event.modifiers == Qt.NoModifier) ||
                             (event.modifiers == Qt.ShiftModifier))
                     {
+                        //textArea.insert(textArea.length, event.text);
+                        //textArea.cursorPosition = textArea.length-1;
                         keyPressed(event.text);
                     }
                 }
