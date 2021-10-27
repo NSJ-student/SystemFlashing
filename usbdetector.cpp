@@ -6,8 +6,8 @@ UsbDetector::UsbDetector(QObject *parent) : QObject(parent)
     m_recvWork->moveToThread(&m_recvThread);
 
     QObject::connect(&m_recvThread, SIGNAL(started()), m_recvWork, SLOT(body()));
-//    QObject::connect(m_recvWork, SIGNAL(connected()), this, SIGNAL(connected()));
-//    QObject::connect(m_recvWork, SIGNAL(disconnected()), this, SIGNAL(disconnected()));
+    QObject::connect(m_recvWork, SIGNAL(connected()), this, SIGNAL(connected()));
+    QObject::connect(m_recvWork, SIGNAL(disconnected()), this, SIGNAL(disconnected()));
 }
 
 UsbDetector::~UsbDetector()
@@ -35,4 +35,7 @@ void UsbDetector::setWindow(QQuickWindow *window)
     {
         m_recvThread.start();
     }
+
+    QObject::connect(this, SIGNAL(disconnected()), mMainView, SLOT(qmlDisconnected()));
+    QObject::connect(this, SIGNAL(connected()), mMainView, SLOT(qmlConnected()));
 }

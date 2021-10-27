@@ -24,6 +24,7 @@ TerminalProcess::TerminalProcess(QObject *parent) : QObject(parent)
     QObject::connect(&m_process, SIGNAL(readyReadStandardOutput()), this, SLOT(readyStdOut()));
     QObject::connect(&m_process, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(finished(int, QProcess::ExitStatus)));
 #endif
+    qDebug() << QLocale::system().uiLanguages();
 }
 
 TerminalProcess::~TerminalProcess()
@@ -80,31 +81,47 @@ void TerminalProcess::write(const QString &command)
 
 void TerminalProcess::inputKey(const QString &key)
 {
-    qDebug() << key;
-    //if(m_process.isWritable())
+//    qDebug() << key;
+    if(key == "\r")
     {
-        if(key == "\r")
-        {
-            m_command.append("\n");
-            emit recv(QVariant("\rprompt >> "));
+        emit recv(QVariant("\r"));
 
-            m_process.setProgram(m_command.toUtf8());
-            m_process.start(QIODevice::ReadWrite);
-            m_command.clear();
-        }
-        else if(key == "\b")
+        QStringList args = m_command.split(" ");
+        if(args.count() > 0)
         {
-            if(m_command.length() > 0)
+            QString command = args.at(0);
+            args.removeAt(0);
+
+            m_process.setProgram(command.toUtf8());
+            if(args.count() > 0)
             {
-                m_command.remove(m_command.length()-1, 1);
-                emit remove();
+                m_process.setArguments(args);
+            }
+            m_process.start(QIODevice::ReadWrite);
+            if(!m_process.waitForStarted(1000))
+            {
+                emit recv(QVariant("prompt >> "));
             }
         }
         else
         {
-            m_command.append(key);
-            emit recv(QVariant(key));
+            emit recv(QVariant("prompt >> "));
         }
+
+        m_command.clear();
+    }
+    else if(key == "\b")
+    {
+        if(m_command.length() > 0)
+        {
+            m_command.remove(m_command.length()-1, 1);
+            emit remove();
+        }
+    }
+    else
+    {
+        m_command.append(key);
+        emit recv(QVariant(key));
     }
 }
 
@@ -120,6 +137,7 @@ void TerminalProcess::finished()
 void TerminalProcess::finished(int exitCode, QProcess::ExitStatus exitStatus)
 {
     qDebug() << "finished: " << exitStatus;
+    emit recv(QVariant("prompt >> "));
 }
 
 void TerminalProcess::readyStdOut()
@@ -128,7 +146,7 @@ void TerminalProcess::readyStdOut()
     QString string = m_codec->toUnicode(read);
     emit recv(QVariant(string));
 
-    qDebug() << "readyStdOut";
+    qDebug() << "readyStdOut" << string;
 }
 
 void TerminalProcess::readyStdErr()
@@ -137,7 +155,7 @@ void TerminalProcess::readyStdErr()
     QString string = m_codec->toUnicode(read);
     emit recv(QVariant(string));
 
-    qDebug() << "readyStdErr";
+    qDebug() << "readyStdErr" << string;
 }
 
 #endif

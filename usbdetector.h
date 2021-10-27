@@ -15,12 +15,12 @@ public:
     UsbWatcher(QObject *parent = Q_NULLPTR) :
         QObject(parent)
     {
-        cancel = false;
+        m_cancel = false;
     }
 
     void stop()
     {
-        cancel = true;
+        m_cancel = true;
     }
 
 signals:
@@ -36,27 +36,45 @@ public slots:
         lsusb.setProcessChannelMode(QProcess::MergedChannels);
         qDebug() << "usb checking...";
 
-        cancel = false;
+        m_cancel = false;
+        m_connected = false;
         try
         {
             while(1)
             {
-                if(cancel)
+                if(m_cancel)
                 {
                     break;
                 }
 
-                qDebug() << "start";
                 lsusb.start();
                 if(lsusb.waitForReadyRead(1000))
                 {
                     QByteArray read = lsusb.readAll();
-                    qDebug() << QString(read);
+                    QString strRead = QString(read);
+                    if(strRead.contains("Cygnal"))
+                    {
+                        if(!m_connected)
+                        {
+                            emit connected();
+                            m_connected = true;
+                        }
+                    }
+                    else
+                    {
+                        if(m_connected)
+                        {
+                            emit disconnected();
+                            m_connected = false;
+                        }
+                    }
                 }
-                qDebug() << "kill";
                 lsusb.kill();
-                lsusb.waitForFinished(1000);
-                QThread::msleep(1000);
+                if(!lsusb.waitForFinished(1000))
+                {
+                    qDebug() << "lsusb not finished";
+                }
+                QThread::msleep(500);
             }
         }
         catch (...)
@@ -68,7 +86,8 @@ public slots:
     }
 
 private:
-    bool cancel;
+    bool m_cancel;
+    bool m_connected;
 };
 
 class UsbDetector : public QObject

@@ -388,7 +388,33 @@ void JetsonTx2FlashingInfo::onDispctrlChanged(int dispctrl)
 
 void JetsonTx2FlashingInfo::flashing()
 {
+    if(currentStatus.m_display_out)
+    {
+        QString disp_src_dir = currentStatus.m_display_out->base_path + "\\" + currentStatus.m_display_out->app_dir + "\\";
+        QString disp_dst_dir = currentStatus.m_display_out->base_path + "\\" + currentStatus.m_display_out->dst_path + "\\";
+        qDebug("cp %s %", disp_src_dir + currentStatus.display_out, disp_dst_dir + currentStatus.display_out);
 
+        if(currentStatus.m_ip)
+        {
+            QString ip_src_dir = currentStatus.m_display_out->base_path + "\\" + currentStatus.m_ip->app_dir + "\\";
+            QString ip_dst_dir = currentStatus.m_display_out->base_path + "\\" + currentStatus.m_ip->dst_path + "\\";
+            qDebug("cp %s %", ip_src_dir + currentStatus.ip, ip_dst_dir + currentStatus.ip);
+        }
+    }
+
+    qDebug() << "sudo ./flash.sh jetson-tx2 mmcblk0p1";
+}
+
+void JetsonTx2FlashingInfo::flashing_dtb()
+{
+    if(currentStatus.m_display_out)
+    {
+        QString disp_src_dir = currentStatus.m_display_out->base_path + "\\" + currentStatus.m_display_out->app_dir + "\\";
+        QString disp_dst_dir = currentStatus.m_display_out->base_path + "\\kernel\\dtb\\";
+        qDebug("cp %s %", disp_src_dir + currentStatus.m_display_out->dts, disp_dst_dir + currentStatus.m_display_out->dts);
+    }
+
+    qDebug() << "sudo ./flash.sh -r -k kernel-dtb jetson-tx2 mmcblk0p1";
 }
 
 bool JetsonTx2FlashingInfo::getLastProject()

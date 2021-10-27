@@ -137,6 +137,7 @@ public slots:
     void onDispctrlChanged(int dispctrl);
 
     void flashing();
+    void flashing_dtb();
 
 private:
     QQuickWindow* mQmlView;

@@ -18,6 +18,7 @@ Window {
     title: qsTr("Jetson TX2 flashing")
 
     signal flashImage();
+    signal flashDtb();
 
     signal projectChanged(int index);
     signal displayChanged(int index);
@@ -43,6 +44,14 @@ Window {
 
     function qmlRemoveChar(){
         textArea.remove(textArea.length-1, textArea.length);
+    }
+
+    function qmlConnected() {
+        statusSetting.active = true;
+    }
+
+    function qmlDisconnected() {
+        statusSetting.active = false;
     }
 
     Connections{
@@ -93,6 +102,7 @@ Window {
                 StatusIndicator {
                     id: statusSetting
                     Layout.columnSpan: 1
+                    color: "green"
                 }
 
                 ToolSeparator {

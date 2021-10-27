@@ -11,7 +11,13 @@ QMAKE_LFLAGS += -no-pie
 # Tell qmake to use pkg-config to find QtGStreamer.
 CONFIG += link_pkgconfig
 
-PKGCONFIG += libusb-1.0
+
+# PKGCONFIG += libusb-1.0
+# sudo apt install qml-module-qtquick-controls2
+# sudo apt install qtquickcontrols2-5-dev
+# sudo apt-get install  qtdeclarative5-dev
+# sudo apt-get install qml-module-qtquick-dialogs
+# sudo apt-get install qml-module-qtquick-extras
 
 }
 
