@@ -12,57 +12,57 @@
 
   <DISPLAY_OUT NAME="DSI_2CH"
                DTS="dsi_R32_1.dts"
-               BASE_PATH="D:\\Projects\\JetsonTX2\\L4T"
+               BASE_PATH="D:/Projects/JetsonTX2/L4T"
                APP_PREFIX="DISP_2CH_CTRL_"
                MAJOR_PREFIX="3"
-               APP_DIR="R32_1\\Qt5.9\\DSI"
-               RSC_DIR="R32_1\\Qt5.9"
-               DST_PATH="D:\\test\\flashing">
+               APP_DIR="R32_1/Qt5.9/DSI"
+               RSC_DIR="R32_1/Qt5.9"
+               DST_PATH="D:/test/flashing">
     <IP NAME="DEFAULT"/>
   </DISPLAY_OUT>
   <DISPLAY_OUT NAME="DSI_4CH"
                DTS="dsi_R32_1.dts"
-               BASE_PATH="D:\\Projects\\JetsonTX2\\L4T"
+               BASE_PATH="D:/Projects/JetsonTX2/L4T"
                APP_PREFIX="DISP_2CH_CTRL_"
                MAJOR_PREFIX="3"
-               APP_DIR="R32_1\\Qt5.9\\DSI"
-               RSC_DIR="R32_1\\Qt5.9"
-               DST_PATH="D:\\test\\flashing">
+               APP_DIR="R32_1/Qt5.9/DSI"
+               RSC_DIR="R32_1/Qt5.9"
+               DST_PATH="D:/test/flashing">
     <IP NAME="LEFT"/>
     <IP NAME="RIGHT"/>
   </DISPLAY_OUT>
   <DISPLAY_OUT NAME="DSI_8CH"
                DTS="dsi_R32_1.dts"
-               BASE_PATH="D:\\Projects\\JetsonTX2\\L4T"
+               BASE_PATH="D:/Projects/JetsonTX2/L4T"
                APP_PREFIX="DISP_2CH_CTRL_"
                MAJOR_PREFIX="8"
-               APP_DIR="R32_1\\Qt5.9\\DSI"
-               RSC_DIR="R32_1\\Qt5.9"
-               DST_PATH="D:\\test\\flashing">
+               APP_DIR="R32_1/Qt5.9/DSI"
+               RSC_DIR="R32_1/Qt5.9"
+               DST_PATH="D:/test/flashing">
     <IP NAME="LEFT"/>
     <IP NAME="RIGHT"/>
   </DISPLAY_OUT>
   <DISPLAY_OUT NAME="DSI_1CH"
                DTS="dsi_R32_1.dts"
-               BASE_PATH="D:\\Projects\\JetsonTX2\\L4T"
+               BASE_PATH="D:/Projects/JetsonTX2/L4T"
                APP_PREFIX="DISP_CTRL_"
-               APP_DIR="R32_1\\Qt5.9\\DSI"
-               RSC_DIR="R32_1\\Qt5.9"
-               DST_PATH="D:\\test\\flashing">
+               APP_DIR="R32_1/Qt5.9/DSI"
+               RSC_DIR="R32_1/Qt5.9"
+               DST_PATH="D:/test/flashing">
     <IP NAME="DEFAULT"/>
   </DISPLAY_OUT>
   <DISPLAY_OUT NAME="HDMI"
                DTS="hdmi_ct_R32_1.dts"
-               BASE_PATH="D:\\Projects\\JetsonTX2\\L4T"
+               BASE_PATH="D:/Projects/JetsonTX2/L4T"
                APP_PREFIX="K6408GT_eLCV_"
-               APP_DIR="R32_5\\Qt5.9\\HDMI"
-               RSC_DIR="R32_5\\Qt5.9"
-               DST_PATH="D:\\test\\flashing">
+               APP_DIR="R32_5/Qt5.9/HDMI"
+               RSC_DIR="R32_5/Qt5.9"
+               DST_PATH="D:/test/flashing">
     <IP NAME="DEFAULT"/>
   </DISPLAY_OUT>
 
-  <IP_LIST NAME="DEFAULT" ADDRESS="192.168.20.192" SRC_FILE="interfaces_192" DST_PATH="D:\\test\\flashing"/>
-  <IP_LIST NAME="LEFT" ADDRESS="192.168.20.192" SRC_FILE="interfaces_192" DST_PATH="D:\\test\\flashing"/>
-  <IP_LIST NAME="RIGHT" ADDRESS="192.168.20.193" SRC_FILE="interfaces_193" DST_PATH="D:\\test\\flashing"/>
+  <IP_LIST NAME="DEFAULT" ADDRESS="192.168.20.192" SRC_FILE="interfaces_192" DST_PATH="D:/test/flashing"/>
+  <IP_LIST NAME="LEFT" ADDRESS="192.168.20.192" SRC_FILE="interfaces_192" DST_PATH="D:/test/flashing"/>
+  <IP_LIST NAME="RIGHT" ADDRESS="192.168.20.193" SRC_FILE="interfaces_193" DST_PATH="D:/test/flashing"/>
 
 </PROJECT_DB>

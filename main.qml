@@ -10,6 +10,7 @@ import "."
 
 
 Window {
+    id: root
     width: 550
     height: 500
     minimumWidth: 550
@@ -144,6 +145,20 @@ Window {
                     onCurrentIndexChanged: {
                         remoteupgradeChanged(currentIndex);
                     }
+                    onModelChanged: {
+                        var _maxWidth = 0
+                        for(var i = 0; i < model.length; i++){
+                            // TextMetrics does not work with Material Style
+                            _maxWidth = Math.max((model[i].length+1)*cbRemoteUpgrade.font.pixelSize, _maxWidth)
+                            console.debug("upgrade: " + model[i].length);
+                        }
+                        Layout.minimumWidth = _maxWidth
+
+                        if(_maxWidth > 140)
+                        {
+                            root.width = root.minimumWidth + (_maxWidth-140);
+                        }
+                    }
                 }
 
                 Text {
@@ -195,6 +210,20 @@ Window {
                     onCurrentIndexChanged: {
                         dispctrlChanged(currentIndex);
                     }
+                    onModelChanged: {
+                        var _maxWidth = 0
+                        for(var i = 0; i < model.length; i++){
+                            // TextMetrics does not work with Material Style
+                            _maxWidth = Math.max((model[i].length+1)*cbDispCtrl.font.pixelSize, _maxWidth)
+                            console.debug("disp_model: " + model[i].length);
+                        }
+                        Layout.minimumWidth = _maxWidth
+
+                        if(_maxWidth > 140)
+                        {
+                            root.width = root.minimumWidth + (_maxWidth-140);
+                        }
+                    }
                 }
 
                 Text {
@@ -229,10 +258,17 @@ Window {
                         }
                     }
                     Button {
-                        id: btnSetConfig
-                        text: qsTr("Flashing")
+                        id: btnFlashImage
+                        text: qsTr("Flash Image")
                         onClicked: {
                             flashImage();
+                        }
+                    }
+                    Button {
+                        id: btnFlashDTB
+                        text: qsTr("Flash Dtb")
+                        onClicked: {
+                            flashDtb();
                         }
                     }
                 }

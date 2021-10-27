@@ -24,8 +24,8 @@ void JetsonTx2FlashingInfo::setWindow(QQuickWindow *window)
     QObject::connect(mQmlView, SIGNAL(remoteupgradeChanged(int)), this, SLOT(onRemoteupgradeChanged(int)));
     QObject::connect(mQmlView, SIGNAL(dispctrlChanged(int)), this, SLOT(onDispctrlChanged(int)));
     QObject::connect(mQmlView, SIGNAL(flashImage()), this, SLOT(flashing()));
-    QObject::connect(this, SIGNAL(currentDispOut(QVariant)), mQmlView, SLOT(qmlDisplayOut(QVariant)),
-                     Qt::QueuedConnection);
+    QObject::connect(mQmlView, SIGNAL(flashDtb()), this, SLOT(flashing_dtb()));
+    QObject::connect(this, SIGNAL(currentDispOut(QVariant)), mQmlView, SLOT(qmlDisplayOut(QVariant)));
 
     loadSettingInfo("D:\\Projects\\JetsonTX2\\Software\\SystemFlashing\\init_test.xml");
 }
@@ -390,15 +390,22 @@ void JetsonTx2FlashingInfo::flashing()
 {
     if(currentStatus.m_display_out)
     {
-        QString disp_src_dir = currentStatus.m_display_out->base_path + "\\" + currentStatus.m_display_out->app_dir + "\\";
-        QString disp_dst_dir = currentStatus.m_display_out->base_path + "\\" + currentStatus.m_display_out->dst_path + "\\";
-        qDebug("cp %s %", disp_src_dir + currentStatus.display_out, disp_dst_dir + currentStatus.display_out);
+        QString disp_src_dir = currentStatus.m_display_out->base_path + "/" + currentStatus.m_display_out->app_dir + "/";
+        QString disp_dst_dir = currentStatus.m_display_out->dst_path + "/";
+        qDebug() << "sudo cp " << disp_src_dir + currentStatus.disp_ctrl
+                 << " " + disp_dst_dir + "DISP_CTRL";
+
+        QString upg_src_dir = currentStatus.m_display_out->base_path + "/" + currentStatus.m_display_out->rsc_dir + "/";
+        QString upg_dst_dir = currentStatus.m_display_out->dst_path + "/";
+        qDebug() << "sudo cp " << upg_src_dir + currentStatus.remote_upgrade
+                 << " " + upg_dst_dir + "RemoteUpgrade";
 
         if(currentStatus.m_ip)
         {
-            QString ip_src_dir = currentStatus.m_display_out->base_path + "\\" + currentStatus.m_ip->app_dir + "\\";
-            QString ip_dst_dir = currentStatus.m_display_out->base_path + "\\" + currentStatus.m_ip->dst_path + "\\";
-            qDebug("cp %s %", ip_src_dir + currentStatus.ip, ip_dst_dir + currentStatus.ip);
+            QString ip_src_dir = currentStatus.m_display_out->base_path + "/" + currentStatus.m_display_out->rsc_dir + "/";
+            QString ip_dst_dir = currentStatus.m_ip->dst_path + "/";
+            qDebug() << "sudo cp " << ip_src_dir + currentStatus.m_ip->src_file
+                     << " " + ip_dst_dir + currentStatus.m_ip->src_file;
         }
     }
 
@@ -409,9 +416,15 @@ void JetsonTx2FlashingInfo::flashing_dtb()
 {
     if(currentStatus.m_display_out)
     {
-        QString disp_src_dir = currentStatus.m_display_out->base_path + "\\" + currentStatus.m_display_out->app_dir + "\\";
-        QString disp_dst_dir = currentStatus.m_display_out->base_path + "\\kernel\\dtb\\";
-        qDebug("cp %s %", disp_src_dir + currentStatus.m_display_out->dts, disp_dst_dir + currentStatus.m_display_out->dts);
+        QString dts_src_dir = currentStatus.m_display_out->base_path + "/" + currentStatus.m_display_out->rsc_dir + "/";
+        QString dts_dst_dir = currentStatus.m_display_out->base_path + "/";
+        qDebug() << "sudo ./kernel/dtc -I dts -O dtb -o "
+                 + dts_dst_dir + "temp.dtb "
+                 + dts_src_dir + currentStatus.m_display_out->dts;
+
+        QString dtb_dst_dir = currentStatus.m_display_out->base_path + "/kernel/dtb/";
+        qDebug() << "sudo cp " + dts_dst_dir + "temp.dtb"
+                 + " " + dtb_dst_dir + "tegra186-quill-p3310-1000-c03-00-base.dtb";
     }
 
     qDebug() << "sudo ./flash.sh -r -k kernel-dtb jetson-tx2 mmcblk0p1";
@@ -500,7 +513,8 @@ void JetsonTx2FlashingInfo::updateUpgradeAppList()
     m_upgradeAppList.clear();
     foreach(QString file, results)
     {
-        m_upgradeAppList.append(file.remove(0, 14));
+        //m_upgradeAppList.append(file.remove(0, 14));
+        m_upgradeAppList.append(file);
     }
     if(results.count() > 0)
     {
@@ -538,7 +552,8 @@ void JetsonTx2FlashingInfo::updateDispAppList()
                 continue;
             }
         }
-        m_dispAppList.append(file.remove(0, p_disp->app_prefix.length()));
+        //m_dispAppList.append(file.remove(0, p_disp->app_prefix.length()));
+        m_dispAppList.append(file);
     }
     if(m_dispAppList.count() > 0)
     {
