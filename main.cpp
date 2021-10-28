@@ -48,15 +48,16 @@ int main(int argc, char *argv[])
     //qrc:/main.qml를 등록한 엔진의 object값을 window타입으로 변경해준다.
     QQuickWindow * p_window = qobject_cast<QQuickWindow *>(root);
 
+    QObject::connect(&tx2_info, SIGNAL(executeCommand(QString)), &terminal, SLOT(executeCommand(QString)));
+#if defined(Q_OS_LINUX)
+    QObject::connect(&tx2_info, SIGNAL(detectUsbName(QString)), &usb_detector, SLOT(detectdUsbName(QString)));
+    // UsbDetector
+    usb_detector.setWindow(p_window);
+#endif
     // JetsonTx2FlashingInfo
     tx2_info.setWindow(p_window);
     // TerminalProcess
     terminal.setWindow(p_window);
-#if defined(Q_OS_LINUX)
-    // UsbDetector
-    usb_detector.setWindow(p_window);
-#endif
-    QObject::connect(&tx2_info, SIGNAL(executeCommand(QString)), &terminal, SLOT(executeCommand(QString)));
 
     return app.exec();
 }

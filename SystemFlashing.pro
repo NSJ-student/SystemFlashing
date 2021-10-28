@@ -18,6 +18,8 @@ CONFIG += link_pkgconfig
 # sudo apt-get install  qtdeclarative5-dev
 # sudo apt-get install qml-module-qtquick-dialogs
 # sudo apt-get install qml-module-qtquick-extras
+# sudo apt-get install qml-module-qt-labs-folderlistmodel
+# sudo apt-get install qml-module-qt-labs-settings
 
 }
 
@@ -48,4 +50,5 @@ HEADERS += \
 DISTFILES += \
     init.xml \
     init_test.xml \
-    last_log.xml
+    last_log.xml \
+    init_vmware.xml

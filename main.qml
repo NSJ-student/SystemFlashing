@@ -21,6 +21,7 @@ Window {
     signal flashImage();
     signal flashDtb();
 
+    signal loadConfig(string path);
     signal projectChanged(int index);
     signal displayChanged(int index);
     signal ipChanged(int index);
@@ -49,10 +50,14 @@ Window {
 
     function qmlConnected() {
         statusSetting.active = true;
+        btnFlashImage.enabled = true;
+        btnFlashDTB.enabled = true;
     }
 
     function qmlDisconnected() {
         statusSetting.active = false;
+        btnFlashImage.enabled = false;
+        btnFlashDTB.enabled = false;
     }
 
     Connections{
@@ -69,6 +74,20 @@ Window {
 
     onWindowStateChanged: {
         console.log("windowState: " + windowState);
+    }
+
+    FileDialog {
+        id: fileDialog
+        title: "Please choose a file"
+        nameFilters: ["Config files (*.xml)"]
+        folder: shortcuts.home
+        onAccepted: {
+            console.log("You chose: " + fileDialog.fileUrl)
+            loadConfig(fileDialog.fileUrl);
+        }
+        onRejected: {
+            console.log("Canceled")
+        }
     }
 
     ColumnLayout {
@@ -102,6 +121,7 @@ Window {
 
                 StatusIndicator {
                     id: statusSetting
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     Layout.columnSpan: 1
                     color: "green"
                 }
@@ -254,11 +274,13 @@ Window {
                         id: btnLoadLastSetting
                         text: qsTr("Load")
                         onClicked: {
-                            jetson_obj.loadSettingInfo("D:\\Projects\\JetsonTX2\\Software\\SystemFlashing\\init_test.xml");
+                            fileDialog.open();
+//                            jetson_obj.loadSettingInfo("D:\\Projects\\JetsonTX2\\Software\\SystemFlashing\\init_test.xml");
                         }
                     }
                     Button {
                         id: btnFlashImage
+                        enabled: false
                         text: qsTr("Flash Image")
                         onClicked: {
                             flashImage();
@@ -266,6 +288,7 @@ Window {
                     }
                     Button {
                         id: btnFlashDTB
+                        enabled: false
                         text: qsTr("Flash Dtb")
                         onClicked: {
                             flashDtb();
@@ -303,6 +326,7 @@ Window {
                 font.family: "Courier"
 
                 selectByMouse: true
+                textFormat: Text.AutoText
                 wrapMode: Text.NoWrap
                 readOnly: true
 

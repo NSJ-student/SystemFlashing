@@ -7,6 +7,10 @@
 #include <QThread>
 #include <QProcess>
 
+//#define DETECT_WORD     "Cygnal"
+#define DETECT_WORD     "Nvidia"
+
+
 class UsbWatcher : public QObject
 {
     Q_OBJECT
@@ -16,11 +20,19 @@ public:
         QObject(parent)
     {
         m_cancel = false;
+        m_connected = false;
+        m_detectDevice = "";
     }
 
     void stop()
     {
         m_cancel = true;
+    }
+
+    void setDeviceName(const QString &name)
+    {
+        m_detectDevice = name;
+        qDebug() << "detect USB: " << m_detectDevice;
     }
 
 signals:
@@ -52,7 +64,7 @@ public slots:
                 {
                     QByteArray read = lsusb.readAll();
                     QString strRead = QString(read);
-                    if(strRead.contains("Cygnal"))
+                    if(strRead.contains(m_detectDevice))
                     {
                         if(!m_connected)
                         {
@@ -86,6 +98,7 @@ public slots:
     }
 
 private:
+    QString m_detectDevice;
     bool m_cancel;
     bool m_connected;
 };
@@ -103,6 +116,9 @@ public:
 signals:
     void connected();
     void disconnected();
+
+public slots:
+    void detectdUsbName(const QString &name);
 
 private:
     QQuickWindow* mMainView;

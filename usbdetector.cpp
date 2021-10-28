@@ -17,7 +17,7 @@ UsbDetector::~UsbDetector()
     if(m_recvThread.isRunning())
     {
         m_recvThread.quit();
-        m_recvThread.wait(100);
+        m_recvThread.wait(1500);
         if(m_recvThread.isRunning())
         {
             m_recvThread.terminate();
@@ -31,11 +31,16 @@ void UsbDetector::setWindow(QQuickWindow *window)
 {
     mMainView = window;
 
+    QObject::connect(this, SIGNAL(disconnected()), mMainView, SLOT(qmlDisconnected()));
+    QObject::connect(this, SIGNAL(connected()), mMainView, SLOT(qmlConnected()));
+}
+
+void UsbDetector::detectdUsbName(const QString &name)
+{
+    m_recvWork->setDeviceName(name);
+
     if(!m_recvThread.isRunning())
     {
         m_recvThread.start();
     }
-
-    QObject::connect(this, SIGNAL(disconnected()), mMainView, SLOT(qmlDisconnected()));
-    QObject::connect(this, SIGNAL(connected()), mMainView, SLOT(qmlConnected()));
 }

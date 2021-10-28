@@ -9,6 +9,7 @@
 #include <QTextCodec>
 
 #define USE_THREAD  0
+#define USE_BASH    1
 
 class TerminalWork : public QObject
 {

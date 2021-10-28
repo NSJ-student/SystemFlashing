@@ -33,7 +33,14 @@ public:
     DisplayOut(QString _name, QString _base_path)
     {
         name = _name;
-        base_path = _base_path;
+        if(_base_path.isEmpty())
+        {
+            base_path = ".";
+        }
+        else
+        {
+            base_path = _base_path;
+        }
         app_prefix = "DISP_2CH_CTRL";
         app_dir = "work_obj/DSI";
         rsc_dir = "work_obj";
@@ -124,6 +131,7 @@ signals:
     void dispAppListChanged();
     void currentDispOut(QVariant data);
     void executeCommand(const QString &command);
+    void detectUsbName(const QString &name);
 
 public slots:
     void windowCreated();

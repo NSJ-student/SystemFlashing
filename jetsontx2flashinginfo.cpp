@@ -25,9 +25,13 @@ void JetsonTx2FlashingInfo::setWindow(QQuickWindow *window)
     QObject::connect(mQmlView, SIGNAL(dispctrlChanged(int)), this, SLOT(onDispctrlChanged(int)));
     QObject::connect(mQmlView, SIGNAL(flashImage()), this, SLOT(flashing()));
     QObject::connect(mQmlView, SIGNAL(flashDtb()), this, SLOT(flashing_dtb()));
+    QObject::connect(mQmlView, SIGNAL(loadConfig(QString)), this, SLOT(loadSettingInfo(QString)));
     QObject::connect(this, SIGNAL(currentDispOut(QVariant)), mQmlView, SLOT(qmlDisplayOut(QVariant)));
-
+#if defined (Q_OS_LINUX)
+    loadSettingInfo("/home/mik21/SystemFlashing/init_vmware.xml");
+#else
     loadSettingInfo("D:\\Projects\\JetsonTX2\\Software\\SystemFlashing\\init_test.xml");
+#endif
 }
 
 const QStringList JetsonTx2FlashingInfo::projectList()
@@ -61,7 +65,8 @@ void JetsonTx2FlashingInfo::windowCreated()
 
 void JetsonTx2FlashingInfo::loadSettingInfo(const QString &path)
 {
-    QFile settings(path);
+    QUrl url(path);
+    QFile settings(url.path());
     if(!settings.exists())
     {
         qDebug() << "file not exist: " << path;
@@ -83,6 +88,15 @@ void JetsonTx2FlashingInfo::loadSettingInfo(const QString &path)
 
     // get last project
     bool last_project_exists = getLastProject();
+
+    QDomNodeList UsbList = top_element.elementsByTagName("USB");
+    if(UsbList.count() > 0)
+    {
+        QDomElement element = UsbList.at(0).toElement();
+        QString name = element.attribute("NAME");
+
+        emit detectUsbName(name);
+    }
 
     // IP
     QDomNodeList IpList = top_element.elementsByTagName("IP_LIST");
@@ -390,61 +404,70 @@ void JetsonTx2FlashingInfo::flashing()
 {
     if(currentStatus.m_display_out)
     {
-        QString dts_src_dir = currentStatus.m_display_out->base_path + "/" + currentStatus.m_display_out->rsc_dir + "/";
-        QString dts_dst_dir = currentStatus.m_display_out->base_path + "/";
-        QString dts_cmd = "sudo " + currentStatus.m_display_out->base_path + "/kernel/dtc -I dts -O dtb -o "
-                 + dts_dst_dir + "temp.dtb "
-                 + dts_src_dir + currentStatus.m_display_out->dts;
-        emit executeCommand(dts_cmd);
+        if(!currentStatus.m_display_out->dts.isEmpty())
+        {
+            QString dts_src_dir = currentStatus.m_display_out->base_path + "/" + currentStatus.m_display_out->rsc_dir + "/";
+            QString dts_dst_dir = currentStatus.m_display_out->base_path + "/";
+            QString dts_cmd = currentStatus.m_display_out->base_path + "/kernel/dtc -I dts -O dtb -o "
+                     + dts_dst_dir + "temp.dtb "
+                     + dts_src_dir + currentStatus.m_display_out->dts;
+            emit executeCommand(dts_cmd);
 
-        QString dtb_dst_dir = currentStatus.m_display_out->base_path + "/kernel/dtb/";
-        QString dtb_cmd = "sudo cp " + dts_dst_dir + "temp.dtb"
-                 + " " + dtb_dst_dir + "tegra186-quill-p3310-1000-c03-00-base.dtb";
-        emit executeCommand(dtb_cmd);
+            QString dtb_dst_dir = currentStatus.m_display_out->base_path + "/kernel/dtb/";
+            QString dtb_cmd = "cp " + dts_dst_dir + "temp.dtb"
+                     + " " + dtb_dst_dir + "tegra186-quill-p3310-1000-c03-00-base.dtb";
+            emit executeCommand(dtb_cmd);
+        }
 
-        QString disp_src_dir = currentStatus.m_display_out->base_path + "/" + currentStatus.m_display_out->app_dir + "/";
-        QString disp_dst_dir = currentStatus.m_display_out->dst_path + "/";
-        QString disp_cmd = "sudo cp " + disp_src_dir + currentStatus.disp_ctrl
-                 + " " + disp_dst_dir + "DISP_CTRL";
-        emit executeCommand(disp_cmd);
+        if(!currentStatus.disp_ctrl.isEmpty())
+        {
+            QString disp_src_dir = currentStatus.m_display_out->base_path + "/" + currentStatus.m_display_out->app_dir + "/";
+            QString disp_dst_dir = currentStatus.m_display_out->dst_path + "/";
+            QString disp_cmd = "cp " + disp_src_dir + currentStatus.disp_ctrl
+                     + " " + disp_dst_dir + "DISP_CTRL";
+            emit executeCommand(disp_cmd);
+        }
 
-        QString upg_src_dir = currentStatus.m_display_out->base_path + "/" + currentStatus.m_display_out->rsc_dir + "/";
-        QString upg_dst_dir = currentStatus.m_display_out->dst_path + "/";
-        QString upg_cmd = "sudo cp " + upg_src_dir + currentStatus.remote_upgrade
-                 + " " + upg_dst_dir + "RemoteUpgrade";
-        emit executeCommand(upg_cmd);
+        if(!currentStatus.remote_upgrade.isEmpty())
+        {
+            QString upg_src_dir = currentStatus.m_display_out->base_path + "/" + currentStatus.m_display_out->rsc_dir + "/";
+            QString upg_dst_dir = currentStatus.m_display_out->dst_path + "/";
+            QString upg_cmd = "cp " + upg_src_dir + currentStatus.remote_upgrade
+                     + " " + upg_dst_dir + "RemoteUpgrade";
+            emit executeCommand(upg_cmd);
+        }
 
-        if(currentStatus.m_ip)
+        if(currentStatus.m_ip && !currentStatus.m_ip->src_file.isEmpty())
         {
             QString ip_src_dir = currentStatus.m_display_out->base_path + "/" + currentStatus.m_display_out->rsc_dir + "/";
-            QString ip_dst_dir = currentStatus.m_ip->dst_path + "/";
-            QString ip_cmd = "sudo cp " + ip_src_dir + currentStatus.m_ip->src_file
+            QString ip_dst_dir = currentStatus.m_display_out->base_path + "/" + currentStatus.m_ip->dst_path + "/";
+            QString ip_cmd = "cp " + ip_src_dir + currentStatus.m_ip->src_file
                      + " " + ip_dst_dir + currentStatus.m_ip->src_file;
             emit executeCommand(ip_cmd);
         }
     }
 
-    emit executeCommand("sudo " + currentStatus.m_display_out->base_path + "/flash.sh jetson-tx2 mmcblk0p1");
+    emit executeCommand(currentStatus.m_display_out->base_path + "/flash.sh jetson-tx2 mmcblk0p1");
 }
 
 void JetsonTx2FlashingInfo::flashing_dtb()
 {
-    if(currentStatus.m_display_out)
+    if(currentStatus.m_display_out && !currentStatus.m_display_out->dts.isEmpty())
     {
         QString dts_src_dir = currentStatus.m_display_out->base_path + "/" + currentStatus.m_display_out->rsc_dir + "/";
         QString dts_dst_dir = currentStatus.m_display_out->base_path + "/";
-        QString dts_cmd = "sudo ./kernel/dtc -I dts -O dtb -o "
+        QString dts_cmd = currentStatus.m_display_out->base_path + "/kernel/dtc -I dts -O dtb -o "
                  + dts_dst_dir + "temp.dtb "
                  + dts_src_dir + currentStatus.m_display_out->dts;
         emit executeCommand(dts_cmd);
 
         QString dtb_dst_dir = currentStatus.m_display_out->base_path + "/kernel/dtb/";
-        QString dtb_cmd = "sudo cp " + dts_dst_dir + "temp.dtb"
+        QString dtb_cmd = "cp " + dts_dst_dir + "temp.dtb"
                  + " " + dtb_dst_dir + "tegra186-quill-p3310-1000-c03-00-base.dtb";
         emit executeCommand(dtb_cmd);
     }
 
-    emit executeCommand("sudo " + currentStatus.m_display_out->base_path + "/flash.sh -r -k kernel-dtb jetson-tx2 mmcblk0p1");
+    emit executeCommand(currentStatus.m_display_out->base_path + "/flash.sh -r -k kernel-dtb jetson-tx2 mmcblk0p1");
 }
 
 bool JetsonTx2FlashingInfo::getLastProject()
@@ -513,6 +536,7 @@ void JetsonTx2FlashingInfo::updateUpgradeAppList()
     DisplayOut * p_disp = currentStatus.m_display_out;
     if(p_disp == Q_NULLPTR)
     {
+        emit upgradeAppListChanged();
         return;
     }
 
@@ -520,6 +544,7 @@ void JetsonTx2FlashingInfo::updateUpgradeAppList()
     QDir dir(dir_path);
     if(!dir.exists())
     {
+        emit upgradeAppListChanged();
         return;
     }
 
@@ -545,6 +570,7 @@ void JetsonTx2FlashingInfo::updateDispAppList()
     DisplayOut * p_disp = currentStatus.m_display_out;
     if(p_disp == Q_NULLPTR)
     {
+        emit dispAppListChanged();
         return;
     }
 
@@ -552,6 +578,7 @@ void JetsonTx2FlashingInfo::updateDispAppList()
     QDir dir(dir_path);
     if(!dir.exists())
     {
+        emit dispAppListChanged();
         return;
     }
 

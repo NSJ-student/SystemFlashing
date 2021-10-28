@@ -1,6 +1,7 @@
 #include "terminalprocess.h"
 
-#if defined (Q_OS_LINUX)
+//#if defined (Q_OS_LINUX)
+#if (USE_BASH==0)
 
 TerminalProcess::TerminalProcess(QObject *parent) : QObject(parent)
 {
@@ -173,7 +174,11 @@ TerminalProcess::TerminalProcess(QObject *parent) : QObject(parent)
     qmlRegisterType<TerminalProcess>("TerminalProcess", 1, 0,
                                      "TerminalProcess");
 //    m_process.setReadChannel(QProcess::StandardOutput);
+#if defined (Q_OS_LINUX)
+    m_process.setProgram("bash");
+#else
     m_process.setProgram("cmd");
+#endif
     m_process.setProcessChannelMode(QProcess::MergedChannels);
     m_process.start(QIODevice::ReadWrite);
 
@@ -186,7 +191,7 @@ TerminalProcess::TerminalProcess(QObject *parent) : QObject(parent)
                      Qt::QueuedConnection);
     QObject::connect(m_recvWork, SIGNAL(finished()), this, SLOT(finished()));
 #else
-    m_codec = QTextCodec::codecForName("eucKR");
+    m_codec = QTextCodec::codecForName("EUC-KR");
     QObject::connect(&m_process, SIGNAL(readyReadStandardError()), this, SLOT(readyStdErr()));
     QObject::connect(&m_process, SIGNAL(readyReadStandardOutput()), this, SLOT(readyStdOut()));
     QObject::connect(&m_process, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(finished(int, QProcess::ExitStatus)));
@@ -212,6 +217,8 @@ TerminalProcess::~TerminalProcess()
 
     delete m_recvWork;
 #endif
+    m_process.close();
+    m_process.kill();
 }
 
 void TerminalProcess::setWindow(QQuickWindow *window)
@@ -247,7 +254,6 @@ void TerminalProcess::write(const QString &command)
 
 void TerminalProcess::inputKey(const QString &key)
 {
-    qDebug() << key;
     if(m_process.isWritable())
     {
         if(key == "\r")
@@ -287,7 +293,7 @@ void TerminalProcess::finished(int exitCode, QProcess::ExitStatus exitStatus)
 void TerminalProcess::readyStdOut()
 {
     QByteArray read = m_process.readAll();
-    QString string = m_codec->toUnicode(read);
+    QString string = QString::fromLocal8Bit(read);//m_codec->toUnicode(read);
     emit recv(QVariant(string));
 
     qDebug() << "readyStdOut";
@@ -296,7 +302,7 @@ void TerminalProcess::readyStdOut()
 void TerminalProcess::readyStdErr()
 {
     QByteArray read = m_process.readAll();
-    QString string = m_codec->toUnicode(read);
+    QString string = QString::fromLocal8Bit(read);//m_codec->toUnicode(read);
     emit recv(QVariant(string));
 
     qDebug() << "readyStdErr";
@@ -307,6 +313,8 @@ void TerminalProcess::readyStdErr()
 void TerminalProcess::executeCommand(const QString &command)
 {
     qDebug() << command;
+    QString cmd = command + "\n";
+    m_process.write(cmd.toUtf8());
 }
 
 #endif
