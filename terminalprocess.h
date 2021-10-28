@@ -98,6 +98,7 @@ public slots:
     void readyStdOut();
     void readyStdErr();
 #endif
+    void executeCommand(const QString &command);
 
 private:
     QQuickWindow* mMainView;

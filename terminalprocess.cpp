@@ -160,6 +160,11 @@ void TerminalProcess::readyStdErr()
 
 #endif
 
+void TerminalProcess::executeCommand(const QString &command)
+{
+    qDebug() << command;
+}
+
 #else
 
 TerminalProcess::TerminalProcess(QObject *parent) : QObject(parent)
@@ -298,5 +303,10 @@ void TerminalProcess::readyStdErr()
 }
 
 #endif
+
+void TerminalProcess::executeCommand(const QString &command)
+{
+    qDebug() << command;
+}
 
 #endif

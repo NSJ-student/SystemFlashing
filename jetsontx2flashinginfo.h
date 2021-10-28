@@ -123,6 +123,7 @@ signals:
     void upgradeAppListChanged();
     void dispAppListChanged();
     void currentDispOut(QVariant data);
+    void executeCommand(const QString &command);
 
 public slots:
     void windowCreated();

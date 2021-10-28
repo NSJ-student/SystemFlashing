@@ -56,6 +56,7 @@ int main(int argc, char *argv[])
     // UsbDetector
     usb_detector.setWindow(p_window);
 #endif
+    QObject::connect(&tx2_info, SIGNAL(executeCommand(QString)), &terminal, SLOT(executeCommand(QString)));
 
     return app.exec();
 }
