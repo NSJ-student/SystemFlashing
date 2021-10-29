@@ -170,7 +170,6 @@ Window {
                         for(var i = 0; i < model.length; i++){
                             // TextMetrics does not work with Material Style
                             _maxWidth = Math.max((model[i].length+1)*cbRemoteUpgrade.font.pixelSize, _maxWidth)
-                            console.debug("upgrade: " + model[i].length);
                         }
                         Layout.minimumWidth = _maxWidth
 
@@ -235,7 +234,6 @@ Window {
                         for(var i = 0; i < model.length; i++){
                             // TextMetrics does not work with Material Style
                             _maxWidth = Math.max((model[i].length+1)*cbDispCtrl.font.pixelSize, _maxWidth)
-                            console.debug("disp_model: " + model[i].length);
                         }
                         Layout.minimumWidth = _maxWidth
 

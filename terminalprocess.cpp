@@ -261,17 +261,20 @@ void TerminalProcess::inputKey(const QString &key)
             m_command.append("\n");
             m_process.write(m_command.toUtf8());
             m_command.clear();
+            emit recv(QVariant(key));
         }
         else if(key == "\b")
         {
             if(m_command.length() > 0)
             {
                 m_command.remove(m_command.length()-1, 1);
+                emit remove();
             }
         }
         else
         {
             m_command.append(key);
+            emit recv(QVariant(key));
         }
     }
 }
@@ -295,6 +298,7 @@ void TerminalProcess::readyStdOut()
     QByteArray read = m_process.readAll();
     QString string = QString::fromLocal8Bit(read);//m_codec->toUnicode(read);
     emit recv(QVariant(string));
+    emit recv(QVariant("prompt >> "));
 
     qDebug() << "readyStdOut";
 }
@@ -304,6 +308,7 @@ void TerminalProcess::readyStdErr()
     QByteArray read = m_process.readAll();
     QString string = QString::fromLocal8Bit(read);//m_codec->toUnicode(read);
     emit recv(QVariant(string));
+    emit recv(QVariant("prompt >> "));
 
     qDebug() << "readyStdErr";
 }

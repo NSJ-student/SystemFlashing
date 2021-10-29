@@ -58,6 +58,11 @@ public slots:
                 {
                     break;
                 }
+                if(m_detectDevice.isEmpty())
+                {
+                    QThread::msleep(100);
+                    continue;
+                }
 
                 lsusb.start();
                 if(lsusb.waitForReadyRead(1000))

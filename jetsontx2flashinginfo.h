@@ -163,6 +163,8 @@ private:
     QStringList m_upgradeAppList;
     QStringList m_dispAppList;
 
+    QString m_prefixSudo;
+
     bool getLastProject();
     void updateUpgradeAppList();
     void updateDispAppList();
