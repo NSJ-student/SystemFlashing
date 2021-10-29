@@ -28,7 +28,7 @@ void JetsonTx2FlashingInfo::setWindow(QQuickWindow *window)
     QObject::connect(mQmlView, SIGNAL(loadConfig(QString)), this, SLOT(loadSettingInfo(QString)));
     QObject::connect(this, SIGNAL(currentDispOut(QVariant)), mQmlView, SLOT(qmlDisplayOut(QVariant)));
 #if defined (Q_OS_LINUX)
-    loadSettingInfo("/home/mik21/SystemFlashing/init_vmware.xml");
+//    loadSettingInfo("/home/mik21/SystemFlashing/init_vmware.xml");
 #else
     loadSettingInfo("D:\\Projects\\JetsonTX2\\Software\\SystemFlashing\\init_test.xml");
 #endif
@@ -464,7 +464,8 @@ void JetsonTx2FlashingInfo::flashing()
         }
     }
 
-    emit executeCommand(m_prefixSudo + currentStatus.m_display_out->base_path + "/flash.sh jetson-tx2 mmcblk0p1");
+    emit executeCommand(m_prefixSudo + "cd " + currentStatus.m_display_out->base_path);
+    emit executeCommand(m_prefixSudo + "./flash.sh -r jetson-tx2 mmcblk0p1");
 }
 
 void JetsonTx2FlashingInfo::flashing_dtb()
@@ -484,7 +485,8 @@ void JetsonTx2FlashingInfo::flashing_dtb()
         emit executeCommand(m_prefixSudo + dtb_cmd);
     }
 
-    emit executeCommand(m_prefixSudo + currentStatus.m_display_out->base_path + "/flash.sh -r -k kernel-dtb jetson-tx2 mmcblk0p1");
+    emit executeCommand(m_prefixSudo + "cd " + currentStatus.m_display_out->base_path);
+    emit executeCommand(m_prefixSudo + "./flash.sh -r -k kernel-dtb jetson-tx2 mmcblk0p1");
 }
 
 bool JetsonTx2FlashingInfo::getLastProject()
@@ -557,7 +559,8 @@ void JetsonTx2FlashingInfo::updateUpgradeAppList()
         return;
     }
 
-    QString dir_path = p_disp->base_path + "/" + p_disp->rsc_dir;
+//    QString dir_path = p_disp->base_path + "/" + p_disp->rsc_dir;
+    QString dir_path = p_disp->rsc_dir;
     QDir dir(dir_path);
     if(!dir.exists())
     {
@@ -591,7 +594,8 @@ void JetsonTx2FlashingInfo::updateDispAppList()
         return;
     }
 
-    QString dir_path = p_disp->base_path + "/" + p_disp->app_dir;
+//    QString dir_path = p_disp->base_path + "/" + p_disp->app_dir;
+    QString dir_path = p_disp->app_dir;
     QDir dir(dir_path);
     if(!dir.exists())
     {

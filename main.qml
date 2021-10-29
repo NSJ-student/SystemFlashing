@@ -70,6 +70,8 @@ Window {
 
     Component.onCompleted: {
         console.log("window completed");
+        btnFlashImage.enabled = false;
+        btnFlashDTB.enabled = false;
     }
 
     onWindowStateChanged: {

@@ -2,6 +2,9 @@
 
 <PROJECT_DB VERSION="1.00">
 
+    <USB NAME="NVidia" />
+    <SUDO NAME="roqkfdmfwkfgkwk!" />
+
   <PROJECT_lIST>
     <PROJECT NAME="K-6402GDE" DISPLAY_OUT="DSI_2CH" />
     <PROJECT NAME="K-6402GP" DISPLAY_OUT="DSI_2CH" />
@@ -12,54 +15,54 @@
 
   <DISPLAY_OUT NAME="DSI_2CH"
                DTS="dsi_R32_2.dts"
-               BASE_PATH="~/nvidia_old/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra"
+               BASE_PATH="/home/mik21/nvidia_old/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra"
                APP_PREFIX="DISP_2CH_CTRL_3"
                APP_DIR="work_obj/GDE_DSI"
                RSC_DIR="work_obj"
-               DST_PATH="~/nvidia_old/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra/rootfs/home/mik21/Desktop">
+               DST_PATH="/home/mik21/nvidia_old/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra/rootfs/home/mik21/Desktop">
     <IP NAME="DEFAULT"/>
   </DISPLAY_OUT>
   <DISPLAY_OUT NAME="DSI_4CH"
                DTS="dsi_R32_2.dts"
-               BASE_PATH="~/nvidia_old/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra"
+               BASE_PATH="/home/mik21/nvidia_old/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra"
                APP_PREFIX="DISP_2CH_CTRL_3"
                APP_DIR="work_obj/GDE_DSI"
                RSC_DIR="work_obj"
-               DST_PATH="~/nvidia_old/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra/rootfs/home/mik21/Desktop">
+               DST_PATH="/home/mik21/nvidia_old/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra/rootfs/home/mik21/Desktop">
     <IP NAME="LEFT"/>
     <IP NAME="RIGHT"/>
   </DISPLAY_OUT>
   <DISPLAY_OUT NAME="DSI_8CH"
-               DTS=""
-               BASE_PATH="~/nvidia_old/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra"
+               DTS="dsi_R32_2.dts"
+               BASE_PATH="/home/mik21/nvidia_old/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra"
                APP_PREFIX="DISP_2CH_CTRL_8"
                APP_DIR="work_obj/GDE_DSI"
                RSC_DIR="work_obj"
-               DST_PATH="~/nvidia_old/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra/rootfs/home/mik21/Desktop">
+               DST_PATH="/home/mik21/nvidia_old/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra/rootfs/home/mik21/Desktop">
     <IP NAME="LEFT"/>
     <IP NAME="RIGHT"/>
   </DISPLAY_OUT>
   <DISPLAY_OUT NAME="DSI_1CH"
                DTS="1ch_dsi_R32_2.dts"
-               BASE_PATH="~/nvidia_old/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra"
+               BASE_PATH="/home/mik21/nvidia_old/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra"
                APP_PREFIX="DISP_CTRL"
                APP_DIR="work_obj/GDE_DSI"
                RSC_DIR="work_obj"
-               DST_PATH="~/nvidia_old/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra/rootfs/home/mik21/Desktop">
+               DST_PATH="/home/mik21/nvidia_old/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra/rootfs/home/mik21/Desktop">
     <IP NAME="DEFAULT"/>
   </DISPLAY_OUT>
   <DISPLAY_OUT NAME="HDMI"
                DTS="hdmi_ct_R32_2.dts"
-               BASE_PATH="~/nvidia_new/nvidia_sdk/JetPack_4.5_Linux_JETSON_TX2/Linux_for_Tegra"
-               APP_PREFIX="DISP_CTRL"
-               APP_DIR="work_obj/CT_HDMI"
+               BASE_PATH="/home/mik21/nvidia_new/nvidia_sdk/JetPack_4.5_Linux_JETSON_TX2/Linux_for_Tegra"
+               APP_PREFIX="K6408GT_eLCV"
+               APP_DIR="work_obj/HDMI_ELCV"
                RSC_DIR="work_obj"
-               DST_PATH="~/nvidia_new/nvidia_sdk/JetPack_4.5_Linux_JETSON_TX2/Linux_for_Tegra/rootfs/home/mik21/Desktop">
+               DST_PATH="/home/mik21/nvidia_new/nvidia_sdk/JetPack_4.5_Linux_JETSON_TX2/Linux_for_Tegra/rootfs/home/mik21/Desktop">
     <IP NAME="DEFAULT"/>
   </DISPLAY_OUT>
 
-  <IP_LIST NAME="DEFAULT" ADDRESS="192.168.20.192" SRC_FILE="interfaces_192" DST_PATH="rootfs/etc/network/interfaces"/>
-  <IP_LIST NAME="LEFT" ADDRESS="192.168.20.192" SRC_FILE="interface_192" DST_PATH="rootfs/etc/network/interfaces"/>
-  <IP_LIST NAME="RIGHT" ADDRESS="192.168.20.193" SRC_FILE="interface_193" DST_PATH="rootfs/etc/network/interfaces"/>
+  <IP_LIST NAME="DEFAULT" ADDRESS="192.168.20.192" SRC_FILE="interfaces_192" DST_PATH="rootfs/etc/network/interfaces.d"/>
+  <IP_LIST NAME="LEFT" ADDRESS="192.168.20.192" SRC_FILE="interface_192" DST_PATH="rootfs/etc/network/interfaces.d"/>
+  <IP_LIST NAME="RIGHT" ADDRESS="192.168.20.193" SRC_FILE="interface_193" DST_PATH="rootfs/etc/network/interfaces.d"/>
   
 </PROJECT_DB>
