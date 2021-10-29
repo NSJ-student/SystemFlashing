@@ -319,7 +319,9 @@ void TerminalProcess::executeCommand(const QString &command)
 {
     qDebug() << command;
     QString cmd = command + "\n";
+#if defined (Q_OS_LINUX)
     m_process.write(cmd.toUtf8());
+#endif
 }
 
 #endif

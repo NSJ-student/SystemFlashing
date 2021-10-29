@@ -6,6 +6,8 @@ JetsonTx2FlashingInfo::JetsonTx2FlashingInfo(QObject *parent) :
     //class를 qml에서 사용하기 위해서 등록해주는 부분
     qmlRegisterType<JetsonTx2FlashingInfo>("JetsonTx2FlashingInfo", 1, 0,
                                            "JetsonTx2FlashingInfo");
+    m_flashingAppPath = QDir::currentPath();
+    qDebug() << m_flashingAppPath;
 }
 
 JetsonTx2FlashingInfo::~JetsonTx2FlashingInfo()
@@ -27,11 +29,6 @@ void JetsonTx2FlashingInfo::setWindow(QQuickWindow *window)
     QObject::connect(mQmlView, SIGNAL(flashDtb()), this, SLOT(flashing_dtb()));
     QObject::connect(mQmlView, SIGNAL(loadConfig(QString)), this, SLOT(loadSettingInfo(QString)));
     QObject::connect(this, SIGNAL(currentDispOut(QVariant)), mQmlView, SLOT(qmlDisplayOut(QVariant)));
-#if defined (Q_OS_LINUX)
-//    loadSettingInfo("/home/mik21/SystemFlashing/init_vmware.xml");
-#else
-    loadSettingInfo("D:\\Projects\\JetsonTX2\\Software\\SystemFlashing\\init_test.xml");
-#endif
 }
 
 const QStringList JetsonTx2FlashingInfo::projectList()
@@ -66,10 +63,11 @@ void JetsonTx2FlashingInfo::windowCreated()
 void JetsonTx2FlashingInfo::loadSettingInfo(const QString &path)
 {
     QUrl url(path);
-    QFile settings(url.path());
+    QString result = url.replace("file:///","");
+    QFile settings(result);
     if(!settings.exists())
     {
-        qDebug() << "file not exist: " << path;
+        qDebug() << "file not exist: " << result;
         return;
     }
 
@@ -300,6 +298,16 @@ void JetsonTx2FlashingInfo::saveSettingInfo()
     }
 }
 
+void JetsonTx2FlashingInfo::loadLastFlashInfo(const QString &path)
+{
+
+}
+
+void JetsonTx2FlashingInfo::saveLastFlashInfo()
+{
+
+}
+
 void JetsonTx2FlashingInfo::onProjectChanged(int project)
 {
     if(project < 0)
@@ -423,8 +431,8 @@ void JetsonTx2FlashingInfo::flashing()
     {
         if(!currentStatus.m_display_out->dts.isEmpty())
         {
-            QString dts_src_dir = currentStatus.m_display_out->base_path + "/" + currentStatus.m_display_out->rsc_dir + "/";
-            QString dts_dst_dir = currentStatus.m_display_out->base_path + "/";
+            QString dts_src_dir = m_flashingAppPath + "/"+ currentStatus.m_display_out->rsc_dir + "/";
+            QString dts_dst_dir = m_flashingAppPath + "/"+ currentStatus.m_display_out->rsc_dir + "/";
             QString dts_cmd = currentStatus.m_display_out->base_path + "/kernel/dtc -I dts -O dtb -o "
                      + dts_dst_dir + "temp.dtb "
                      + dts_src_dir + currentStatus.m_display_out->dts;
@@ -438,7 +446,7 @@ void JetsonTx2FlashingInfo::flashing()
 
         if(!currentStatus.disp_ctrl.isEmpty())
         {
-            QString disp_src_dir = currentStatus.m_display_out->base_path + "/" + currentStatus.m_display_out->app_dir + "/";
+            QString disp_src_dir = m_flashingAppPath + "/" + currentStatus.m_display_out->app_dir + "/";
             QString disp_dst_dir = currentStatus.m_display_out->dst_path + "/";
             QString disp_cmd = "cp " + disp_src_dir + currentStatus.disp_ctrl
                      + " " + disp_dst_dir + "DISP_CTRL";
@@ -447,7 +455,7 @@ void JetsonTx2FlashingInfo::flashing()
 
         if(!currentStatus.remote_upgrade.isEmpty())
         {
-            QString upg_src_dir = currentStatus.m_display_out->base_path + "/" + currentStatus.m_display_out->rsc_dir + "/";
+            QString upg_src_dir = m_flashingAppPath + "/" + currentStatus.m_display_out->rsc_dir + "/";
             QString upg_dst_dir = currentStatus.m_display_out->dst_path + "/";
             QString upg_cmd = "cp " + upg_src_dir + currentStatus.remote_upgrade
                      + " " + upg_dst_dir + "RemoteUpgrade";
@@ -456,7 +464,7 @@ void JetsonTx2FlashingInfo::flashing()
 
         if(currentStatus.m_ip && !currentStatus.m_ip->src_file.isEmpty())
         {
-            QString ip_src_dir = currentStatus.m_display_out->base_path + "/" + currentStatus.m_display_out->rsc_dir + "/";
+            QString ip_src_dir = m_flashingAppPath + "/" + currentStatus.m_display_out->rsc_dir + "/";
             QString ip_dst_dir = currentStatus.m_display_out->base_path + "/" + currentStatus.m_ip->dst_path + "/";
             QString ip_cmd = "cp " + ip_src_dir + currentStatus.m_ip->src_file
                      + " " + ip_dst_dir + currentStatus.m_ip->src_file;
@@ -472,8 +480,8 @@ void JetsonTx2FlashingInfo::flashing_dtb()
 {
     if(currentStatus.m_display_out && !currentStatus.m_display_out->dts.isEmpty())
     {
-        QString dts_src_dir = currentStatus.m_display_out->base_path + "/" + currentStatus.m_display_out->rsc_dir + "/";
-        QString dts_dst_dir = currentStatus.m_display_out->base_path + "/";
+        QString dts_src_dir = m_flashingAppPath + "/"+ currentStatus.m_display_out->rsc_dir + "/";
+        QString dts_dst_dir = m_flashingAppPath + "/"+ currentStatus.m_display_out->rsc_dir + "/";
         QString dts_cmd = currentStatus.m_display_out->base_path + "/kernel/dtc -I dts -O dtb -o "
                  + dts_dst_dir + "temp.dtb "
                  + dts_src_dir + currentStatus.m_display_out->dts;

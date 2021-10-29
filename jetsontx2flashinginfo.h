@@ -139,6 +139,9 @@ public slots:
     void loadSettingInfo(const QString &path);
     void saveSettingInfo();
 
+    void loadLastFlashInfo(const QString &path);
+    void saveLastFlashInfo();
+
     void onProjectChanged(int project);
     void onDisplayChanged(int display_out);
     void onIpChanged(int ip);
@@ -150,6 +153,8 @@ public slots:
 
 private:
     QQuickWindow* mQmlView;
+
+    QString m_flashingAppPath;
 
     QList<Project*> listProject;
     QList<DisplayOut*> listDispOut;
