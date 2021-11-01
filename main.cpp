@@ -49,6 +49,7 @@ int main(int argc, char *argv[])
     QQuickWindow * p_window = qobject_cast<QQuickWindow *>(root);
 
     QObject::connect(&tx2_info, SIGNAL(executeCommand(QString)), &terminal, SLOT(executeCommand(QString)));
+    QObject::connect(&terminal, SIGNAL(saveLastFlashInfo()), &tx2_info, SLOT(saveLastFlashInfo()));
 #if defined(Q_OS_LINUX)
     QObject::connect(&tx2_info, SIGNAL(detectUsbName(QString)), &usb_detector, SLOT(detectdUsbName(QString)));
     // UsbDetector

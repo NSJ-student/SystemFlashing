@@ -219,6 +219,7 @@ TerminalProcess::~TerminalProcess()
 #endif
     m_process.close();
     m_process.kill();
+    m_process.waitForFinished(1000);
 }
 
 void TerminalProcess::setWindow(QQuickWindow *window)
@@ -291,6 +292,35 @@ void TerminalProcess::finished()
 void TerminalProcess::finished(int exitCode, QProcess::ExitStatus exitStatus)
 {
     qDebug() << "finished: " << exitStatus;
+#if defined (Q_OS_LINUX)
+    if(exitStatus == QProcess::CrashExit)
+    {
+        QString errorMsg = "";
+
+        if(exitCode == SIGINT)
+        {
+            errorMsg = "[CTRL] + [c] (SIGINT)\n";
+        }
+        else if(exitCode == SIGKILL)
+        {
+            errorMsg = "Process killed (SIGKILL)\n";
+        }
+        else if(exitCode == SIGSEGV)
+        {
+            errorMsg = "Segmentation fault (SIGSEGV)\n";
+        }
+        else if(exitCode == SIGTERM)
+        {
+            errorMsg = "Process killed (SIGTERM)\n";
+        }
+        else if(exitCode == SIGTSTP)
+        {
+            errorMsg = "[CTRL] + [z] (SIGTSTP)\n";
+        }
+
+        qDebug() << errorMsg;
+    }
+#endif
 }
 
 void TerminalProcess::readyStdOut()
@@ -298,9 +328,18 @@ void TerminalProcess::readyStdOut()
     QByteArray read = m_process.readAll();
     QString string = QString::fromLocal8Bit(read);//m_codec->toUnicode(read);
     emit recv(QVariant(string));
+#if defined (Q_OS_LINUX)
     emit recv(QVariant("prompt >> "));
+#endif
 
-    qDebug() << "readyStdOut";
+    if(string.contains("flashed successfully"))
+    {
+        qDebug() << "readyStdOut: " << string;
+    }
+    if(string.contains("Failed") || string.contains("failed") || string.contains("Error"))
+    {
+        qDebug() << "readyStdOut: " << string;
+    }
 }
 
 void TerminalProcess::readyStdErr()
@@ -308,9 +347,18 @@ void TerminalProcess::readyStdErr()
     QByteArray read = m_process.readAll();
     QString string = QString::fromLocal8Bit(read);//m_codec->toUnicode(read);
     emit recv(QVariant(string));
+#if defined (Q_OS_LINUX)
     emit recv(QVariant("prompt >> "));
+#endif
 
-    qDebug() << "readyStdErr";
+    if(string.contains("flashed successfully"))
+    {
+        qDebug() << "readyStdErr: " << string;
+    }
+    if(string.contains("Failed") || string.contains("failed") || string.contains("Error"))
+    {
+        qDebug() << "readyStdErr: " << string;
+    }
 }
 
 #endif
@@ -318,8 +366,8 @@ void TerminalProcess::readyStdErr()
 void TerminalProcess::executeCommand(const QString &command)
 {
     qDebug() << command;
-    QString cmd = command + "\n";
 #if defined (Q_OS_LINUX)
+    QString cmd = command + "\n";
     m_process.write(cmd.toUtf8());
 #endif
 }

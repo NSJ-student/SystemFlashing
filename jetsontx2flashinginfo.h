@@ -71,10 +71,10 @@ public:
     DisplayOut * display_out;
 };
 
-class CurrentSet
+class UserStatus
 {
 public:
-    CurrentSet()
+    UserStatus()
     {
     }
 
@@ -130,16 +130,28 @@ signals:
     void upgradeAppListChanged();
     void dispAppListChanged();
     void currentDispOut(QVariant data);
+
+    void currentIdxProject(QVariant data);
+    void currentIdxDispOut(QVariant data);
+    void currentIdxIp(QVariant data);
+    void currentIdxDispCtrl(QVariant data);
+    void currentIdxRemoteUpgrade(QVariant data);
+
+    void lastProject(QVariant data);
+    void lastUpdatedTime(QVariant data);
+    void lastDispOut(QVariant data);
+    void lastIp(QVariant data);
+    void lastDispCtrl(QVariant data);
+    void lastRemoteUpgrade(QVariant data);
+
     void executeCommand(const QString &command);
     void detectUsbName(const QString &name);
+    void init();
 
 public slots:
     void windowCreated();
 
     void loadSettingInfo(const QString &path);
-    void saveSettingInfo();
-
-    void loadLastFlashInfo(const QString &path);
     void saveLastFlashInfo();
 
     void onProjectChanged(int project);
@@ -149,6 +161,7 @@ public slots:
     void onDispctrlChanged(int dispctrl);
 
     void flashing();
+    void flashingWithoutMakingImage();
     void flashing_dtb();
 
 private:
@@ -160,7 +173,8 @@ private:
     QList<DisplayOut*> listDispOut;
     QList<Ip*> listIp;
 
-    CurrentSet currentStatus;
+    UserStatus currentStatus;
+    UserStatus lastUpdatedStatus;
 
     QStringList m_projectList;
     QStringList m_displayList;
@@ -171,8 +185,8 @@ private:
     QString m_prefixSudo;
 
     bool getLastProject();
-    void updateUpgradeAppList();
-    void updateDispAppList();
+    void updateUpgradeAppList(bool last_project_exists);
+    void updateDispAppList(bool last_project_exists);
     void clearSettingInfo();
 
     template <typename T>

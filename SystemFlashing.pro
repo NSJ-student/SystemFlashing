@@ -29,7 +29,8 @@ SOURCES += \
         terminalprocess.cpp \
     usbdetector.cpp
 
-RESOURCES += qml.qrc
+RESOURCES += qml.qrc \
+    icon.qrc
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =
@@ -43,6 +44,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
+    SystemFlashing_resource.rc \
     jetsontx2flashinginfo.h \
     terminalprocess.h \
     usbdetector.h
@@ -52,3 +54,5 @@ DISTFILES += \
     init_test.xml \
     last_log.xml \
     init_vmware.xml
+
+RC_FILE = SystemFlashing_resource.rc

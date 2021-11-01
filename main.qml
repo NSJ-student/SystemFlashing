@@ -19,6 +19,7 @@ Window {
     title: qsTr("Jetson TX2 flashing")
 
     signal flashImage();
+    signal flashImageNoMake();
     signal flashDtb();
 
     signal loadConfig(string path);
@@ -58,6 +59,70 @@ Window {
         statusSetting.active = false;
         btnFlashImage.enabled = false;
         btnFlashDTB.enabled = false;
+    }
+
+    function qmlInit() {
+        btnFlashImage.enabled = true;
+        btnFlashDTB.enabled = true;
+    }
+
+    function qmlProject(data) {
+        txtLastProject.text = data;
+    }
+
+    function qmlLastUpdate(data) {
+        txtLastUpdate.text = data;
+    }
+
+    function qmlDispOut(data){
+        txtLastDispOut.text = data;
+    }
+
+    function qmlIp(data){
+        txtLastIp.text = data;
+    }
+
+    function qmlRemoteUpgrade(data){
+        txtLastRemoteUpgrade.text = data;
+    }
+
+    function qmlDispCtrl(data){
+        txtLastDispCtrl.text = data;
+    }
+
+    function qmlCurrentProject(data){
+        if(cbProject.count > data)
+        {
+            cbProject.currentIndex = data;
+        }
+    }
+
+    function qmlCurrentDispOut(data){
+        if(cbDisplayOut.count > data)
+        {
+            cbDisplayOut.currentIndex = data;
+        }
+    }
+
+    function qmlCurrentIp(data){
+        if(cbIp.count > data)
+        {
+            cbIp.currentIndex = data;
+        }
+    }
+
+    function qmlCurrentRemoteUpgrade(data){
+        if(cbRemoteUpgrade.count > data)
+        {
+            cbRemoteUpgrade.currentIndex = data;
+        }
+    }
+
+    function qmlCurrentDispCtrl(data){
+        if(cbDispCtrl.count > data)
+        {
+            cbDispCtrl.currentIndex = data;
+        }
     }
 
     Connections{
@@ -109,7 +174,7 @@ Window {
             GridLayout {
                 id: gridLayout
                 anchors.fill: parent
-                rows: 7
+                rows: 8
                 columns: 4
 
                 ComboBox {
@@ -119,6 +184,16 @@ Window {
                     onCurrentIndexChanged: {
                         projectChanged(currentIndex);
                     }
+                    onCurrentTextChanged: {
+                        if(txtLastProject.text != cbProject.currentText)
+                        {
+                            txtLastProject.color = "red";
+                        }
+                        else
+                        {
+                            txtLastProject.color = "black";
+                        }
+                    }
                 }
 
                 StatusIndicator {
@@ -126,6 +201,22 @@ Window {
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     Layout.columnSpan: 1
                     color: "green"
+                }
+
+                Text {
+                    id: txtLastProject
+                    text: qsTr("")
+                    font.pixelSize: 10
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    Layout.columnSpan: 1
+                }
+
+                Text {
+                    id: txtLastUpdate
+                    text: qsTr("")
+                    font.pixelSize: 10
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    Layout.columnSpan: 3
                 }
 
                 ToolSeparator {
@@ -150,6 +241,16 @@ Window {
                     onCurrentIndexChanged: {
                         displayChanged(currentIndex);
                     }
+                    onCurrentTextChanged: {
+                        if(txtLastDispOut.text != cbDisplayOut.currentText)
+                        {
+                            txtLastDispOut.color = "red";
+                        }
+                        else
+                        {
+                            txtLastDispOut.color = "black";
+                        }
+                    }
                 }
 
                 Text {
@@ -167,6 +268,16 @@ Window {
                     onCurrentIndexChanged: {
                         remoteupgradeChanged(currentIndex);
                     }
+                    onCurrentTextChanged: {
+                        if(txtLastRemoteUpgrade.text != cbRemoteUpgrade.currentText)
+                        {
+                            txtLastRemoteUpgrade.color = "red";
+                        }
+                        else
+                        {
+                            txtLastRemoteUpgrade.color = "black";
+                        }
+                    }
                     onModelChanged: {
                         var _maxWidth = 0
                         for(var i = 0; i < model.length; i++){
@@ -183,7 +294,7 @@ Window {
                 }
 
                 Text {
-                    id: txtCurrentDispOut
+                    id: txtLastDispOut
                     text: qsTr("")
                     font.pixelSize: 10
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -191,7 +302,7 @@ Window {
                 }
 
                 Text {
-                    id: txtCurrentRemoteUpgrade
+                    id: txtLastRemoteUpgrade
                     text: qsTr("")
                     font.pixelSize: 10
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -214,6 +325,16 @@ Window {
                     onCurrentIndexChanged: {
                         ipChanged(currentIndex);
                     }
+                    onCurrentTextChanged: {
+                        if(txtLastIp.text != cbIp.currentText)
+                        {
+                            txtLastIp.color = "red";
+                        }
+                        else
+                        {
+                            txtLastIp.color = "black";
+                        }
+                    }
                 }
 
                 Text {
@@ -231,6 +352,16 @@ Window {
                     onCurrentIndexChanged: {
                         dispctrlChanged(currentIndex);
                     }
+                    onCurrentTextChanged: {
+                        if(txtLastDispCtrl.text != cbDispCtrl.currentText)
+                        {
+                            txtLastDispCtrl.color = "red";
+                        }
+                        else
+                        {
+                            txtLastDispCtrl.color = "black";
+                        }
+                    }
                     onModelChanged: {
                         var _maxWidth = 0
                         for(var i = 0; i < model.length; i++){
@@ -247,7 +378,7 @@ Window {
                 }
 
                 Text {
-                    id: txtCurrentIp
+                    id: txtLastIp
                     text: qsTr("")
                     font.pixelSize: 10
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -255,7 +386,7 @@ Window {
                 }
 
                 Text {
-                    id: txtCurrentDispCtrl
+                    id: txtLastDispCtrl
                     x: 216
                     y: 79
                     text: qsTr("")
@@ -267,6 +398,7 @@ Window {
                 RowLayout {
                     id: rowLayout
                     Layout.fillWidth: true
+                    Layout.topMargin: 10
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     Layout.columnSpan: 4
 
@@ -283,7 +415,35 @@ Window {
                         enabled: false
                         text: qsTr("Flash Image")
                         onClicked: {
-                            flashImage();
+                            /*
+                            if(txtLastProject.text != cbProject.currentText)
+                            {
+                                flashImage()
+                                return
+                            }
+                            if(txtLastDispOut.text != cbDisplayOut.currentText)
+                            {
+                                flashImage()
+                                return
+                            }
+                            */
+                            if(txtLastIp.text != cbIp.currentText)
+                            {
+                                flashImage()
+                                return
+                            }
+                            if(txtLastRemoteUpgrade.text != cbRemoteUpgrade.currentText)
+                            {
+                                flashImage()
+                                return
+                            }
+                            if(txtLastDispCtrl.text != cbDispCtrl.currentText)
+                            {
+                                flashImage()
+                                return
+                            }
+
+                            flashImageNoMake()
                         }
                     }
                     Button {

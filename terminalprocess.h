@@ -87,6 +87,7 @@ public:
 signals:
     void recv(QVariant data);
     void remove();
+    void saveLastFlashInfo();
 
 public slots:
     void start();

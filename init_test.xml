@@ -34,7 +34,7 @@
   <DISPLAY_OUT NAME="DSI_8CH"
                DTS="dsi_R32_1.dts"
                BASE_PATH="D:/Projects/JetsonTX2/L4T"
-               APP_PREFIX="DISP_2CH_CTRL_3"
+               APP_PREFIX="DISP_2CH_CTRL_8"
                MAJOR_PREFIX="8"
                APP_DIR="R32_1/Qt5.9/DSI"
                RSC_DIR="R32_1/Qt5.9"

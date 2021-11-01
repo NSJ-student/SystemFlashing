@@ -25,10 +25,29 @@ void JetsonTx2FlashingInfo::setWindow(QQuickWindow *window)
     QObject::connect(mQmlView, SIGNAL(ipChanged(int)), this, SLOT(onIpChanged(int)));
     QObject::connect(mQmlView, SIGNAL(remoteupgradeChanged(int)), this, SLOT(onRemoteupgradeChanged(int)));
     QObject::connect(mQmlView, SIGNAL(dispctrlChanged(int)), this, SLOT(onDispctrlChanged(int)));
+
     QObject::connect(mQmlView, SIGNAL(flashImage()), this, SLOT(flashing()));
+    QObject::connect(mQmlView, SIGNAL(flashImageNoMake()), this, SLOT(flashingWithoutMakingImage()));
     QObject::connect(mQmlView, SIGNAL(flashDtb()), this, SLOT(flashing_dtb()));
+
     QObject::connect(mQmlView, SIGNAL(loadConfig(QString)), this, SLOT(loadSettingInfo(QString)));
+
     QObject::connect(this, SIGNAL(currentDispOut(QVariant)), mQmlView, SLOT(qmlDisplayOut(QVariant)));
+
+    QObject::connect(this, SIGNAL(lastProject(QVariant)), mQmlView, SLOT(qmlProject(QVariant)));
+    QObject::connect(this, SIGNAL(lastUpdatedTime(QVariant)), mQmlView, SLOT(qmlLastUpdate(QVariant)));
+    QObject::connect(this, SIGNAL(lastDispOut(QVariant)), mQmlView, SLOT(qmlDispOut(QVariant)));
+    QObject::connect(this, SIGNAL(lastIp(QVariant)), mQmlView, SLOT(qmlIp(QVariant)));
+    QObject::connect(this, SIGNAL(lastDispCtrl(QVariant)), mQmlView, SLOT(qmlDispCtrl(QVariant)));
+    QObject::connect(this, SIGNAL(lastRemoteUpgrade(QVariant)), mQmlView, SLOT(qmlRemoteUpgrade(QVariant)));
+
+    QObject::connect(this, SIGNAL(currentIdxProject(QVariant)), mQmlView, SLOT(qmlCurrentProject(QVariant)));
+    QObject::connect(this, SIGNAL(currentIdxDispOut(QVariant)), mQmlView, SLOT(qmlCurrentDispOut(QVariant)));
+    QObject::connect(this, SIGNAL(currentIdxIp(QVariant)), mQmlView, SLOT(qmlCurrentIp(QVariant)));
+    QObject::connect(this, SIGNAL(currentIdxDispCtrl(QVariant)), mQmlView, SLOT(qmlCurrentDispCtrl(QVariant)));
+    QObject::connect(this, SIGNAL(currentIdxRemoteUpgrade(QVariant)), mQmlView, SLOT(qmlCurrentRemoteUpgrade(QVariant)));
+
+    QObject::connect(this, SIGNAL(init()), mQmlView, SLOT(qmlInit()));
 }
 
 const QStringList JetsonTx2FlashingInfo::projectList()
@@ -62,8 +81,12 @@ void JetsonTx2FlashingInfo::windowCreated()
 
 void JetsonTx2FlashingInfo::loadSettingInfo(const QString &path)
 {
-    QUrl url(path);
-    QString result = url.replace("file:///","");
+    QString _path = path;
+#if defined (Q_OS_LINUX)
+    QString result = _path.replace("file://","");
+#else
+    QString result = _path.replace("file:///","");
+#endif
     QFile settings(result);
     if(!settings.exists())
     {
@@ -132,6 +155,8 @@ void JetsonTx2FlashingInfo::loadSettingInfo(const QString &path)
     }
 
     // display out
+    int idx_dispout = -1;
+    int idx_ip = -1;
     QDomNodeList DispList = top_element.elementsByTagName("DISPLAY_OUT");
     for(int index=0; index<DispList.count(); index++)
     {
@@ -181,46 +206,61 @@ void JetsonTx2FlashingInfo::loadSettingInfo(const QString &path)
             }
         }
 
-        if((last_project_exists)&&(name == currentStatus.display_out))
+        if(last_project_exists)
         {
-            currentStatus.m_display_out = p_disp;
-            foreach(Ip * ip_item, p_disp->ip_list)
+            if(name == lastUpdatedStatus.display_out)
             {
-                m_ipList.append(ip_item->name);
-                if((last_project_exists) && (ip_item->name == currentStatus.ip))
+                idx_dispout = index;
+                currentStatus.display_out = name;
+                currentStatus.m_display_out = p_disp;
+                for(int temp_idx=0; temp_idx<p_disp->ip_list.count(); temp_idx++)
                 {
-                    currentStatus.m_ip = ip_item;
+                    Ip * ip_item = p_disp->ip_list.at(temp_idx);
+                    m_ipList.append(ip_item->name);
+                    if((last_project_exists) && (ip_item->name == lastUpdatedStatus.ip))
+                    {
+                        idx_ip = temp_idx;
+                        currentStatus.ip = ip_item->name;
+                        currentStatus.m_ip = ip_item;
+                    }
                 }
-                else if(currentStatus.m_ip == Q_NULLPTR)
+                if((idx_ip < 0) && (currentStatus.m_display_out->ip_list.count()>0))
                 {
-                    currentStatus.ip = ip_item->name;
-                    currentStatus.m_ip = ip_item;
+                    idx_ip = 0;
+                    currentStatus.ip = m_ipList.at(0);
+                    currentStatus.m_ip = currentStatus.m_display_out->ip_list.at(0);
                 }
             }
         }
-        else if(index == 0)
+    }
+    if((idx_dispout < 0) && (DispList.count()>0))
+    {
+        idx_dispout = 0;
+        currentStatus.display_out = m_displayList.at(0);
+        currentStatus.m_display_out = listDispOut.at(0);
+        for(int temp_idx=0; temp_idx<currentStatus.m_display_out->ip_list.count(); temp_idx++)
         {
-            currentStatus.display_out = name;
-            currentStatus.m_display_out = p_disp;
-            foreach(Ip * ip_item, p_disp->ip_list)
+            Ip * ip_item = currentStatus.m_display_out->ip_list.at(temp_idx);
+            m_ipList.append(ip_item->name);
+            if((last_project_exists) && (ip_item->name == lastUpdatedStatus.ip))
             {
-                m_ipList.append(ip_item->name);
-                if((last_project_exists) && (ip_item->name == currentStatus.ip))
-                {
-                    currentStatus.m_ip = ip_item;
-                }
-                else if(currentStatus.m_ip == Q_NULLPTR)
-                {
-                    currentStatus.ip = ip_item->name;
-                    currentStatus.m_ip = ip_item;
-                }
+                idx_ip = temp_idx;
+                currentStatus.ip = ip_item->name;
+                currentStatus.m_ip = ip_item;
             }
+        }
+        if((idx_ip < 0) && (currentStatus.m_display_out->ip_list.count()>0))
+        {
+            idx_ip = 0;
+            currentStatus.ip = m_ipList.at(0);
+            currentStatus.m_ip = currentStatus.m_display_out->ip_list.at(0);
         }
     }
     emit displayListChanged();
     emit ipListChanged();
 
     // project
+    int idx_project = -1;
     QDomNodeList NodeList = top_element.elementsByTagName("PROJECT_lIST");
     if(NodeList.count() == 0)
     {
@@ -240,30 +280,52 @@ void JetsonTx2FlashingInfo::loadSettingInfo(const QString &path)
         listProject.append(p_project);
         m_projectList.append(name);
 
-        if((last_project_exists)&&(name == currentStatus.project))
+        if(last_project_exists)
         {
-            currentStatus.m_project = p_project;
-        }
-        else if(index == 0)
-        {
-            currentStatus.project = name;
-            currentStatus.m_project = p_project;
+            if(name == lastUpdatedStatus.project)
+            {
+                idx_project = index;
+                currentStatus.project = name;
+                currentStatus.m_project = p_project;
+            }
         }
     }
+    if((idx_project < 0) && (projects.count()>0))
+    {
+        idx_project = 0;
+        currentStatus.project = m_projectList.at(0);
+        currentStatus.m_project = listProject.at(0);
+    }
     emit projectListChanged();
+    if(idx_project >= 0)
+    {
+        emit currentIdxProject(idx_project);
+    }
 
-    updateUpgradeAppList();
-    updateDispAppList();
+    updateUpgradeAppList(last_project_exists);
+    updateDispAppList(last_project_exists);
 
+    if(idx_dispout >= 0)
+    {
+        emit currentIdxDispOut(idx_dispout);
+    }
+    if(idx_ip >= 0)
+    {
+        emit currentIdxIp(idx_ip);
+    }
+
+#if defined (Q_OS_WIN)
+    emit init();
+#endif
     return;
 }
 
-void JetsonTx2FlashingInfo::saveSettingInfo()
+void JetsonTx2FlashingInfo::saveLastFlashInfo()
 {
     QDomDocument doc;
     QDomElement xml = doc.createElement("LAST_LOG");
     xml.setAttribute("DATE", QDateTime::currentDateTime().date().toString("yyyy/MM/dd"));
-    xml.setAttribute("TIME", QDateTime::currentDateTime().date().toString("HH:mm:ss"));
+    xml.setAttribute("TIME", QDateTime::currentDateTime().time().toString("HH:mm:ss"));
     doc.appendChild(xml);
 
     QDomElement child_element;
@@ -298,16 +360,6 @@ void JetsonTx2FlashingInfo::saveSettingInfo()
     }
 }
 
-void JetsonTx2FlashingInfo::loadLastFlashInfo(const QString &path)
-{
-
-}
-
-void JetsonTx2FlashingInfo::saveLastFlashInfo()
-{
-
-}
-
 void JetsonTx2FlashingInfo::onProjectChanged(int project)
 {
     if(project < 0)
@@ -321,7 +373,7 @@ void JetsonTx2FlashingInfo::onProjectChanged(int project)
     Project * search = findObjByName(listProject, m_projectList.at(project));
     if(search != Q_NULLPTR)
     {
-        currentStatus.project = project;
+        currentStatus.project = m_projectList.at(project);
         currentStatus.m_project = search;
 
         if(currentStatus.display_out != search->display_out->name)
@@ -362,7 +414,7 @@ void JetsonTx2FlashingInfo::onDisplayChanged(int display_out)
     DisplayOut * search = findObjByName(listDispOut, m_displayList.at(display_out));
     if(search != Q_NULLPTR)
     {
-        currentStatus.display_out = display_out;
+        currentStatus.display_out = m_displayList.at(display_out);
         currentStatus.m_display_out = search;
         m_ipList.clear();
         foreach(Ip * ip_item, search->ip_list)
@@ -376,8 +428,8 @@ void JetsonTx2FlashingInfo::onDisplayChanged(int display_out)
         }
         emit ipListChanged();
 
-        updateUpgradeAppList();
-        updateDispAppList();
+        updateUpgradeAppList(true);
+        updateDispAppList(true);
     }
 }
 
@@ -394,7 +446,7 @@ void JetsonTx2FlashingInfo::onIpChanged(int ip)
     Ip * search = findObjByName(listIp, m_ipList.at(ip));
     if(search != Q_NULLPTR)
     {
-        currentStatus.ip = ip;
+        currentStatus.ip = m_ipList.at(ip);
         currentStatus.m_ip = search;
     }
 }
@@ -470,10 +522,22 @@ void JetsonTx2FlashingInfo::flashing()
                      + " " + ip_dst_dir + currentStatus.m_ip->src_file;
             emit executeCommand(m_prefixSudo + ip_cmd);
         }
-    }
 
+        emit executeCommand(m_prefixSudo + "cd " + currentStatus.m_display_out->base_path);
+        emit executeCommand(m_prefixSudo + "./flash.sh jetson-tx2 mmcblk0p1");
+#if defined (Q_OS_WIN)
+        saveLastFlashInfo();
+#endif
+    }
+}
+
+void JetsonTx2FlashingInfo::flashingWithoutMakingImage()
+{
     emit executeCommand(m_prefixSudo + "cd " + currentStatus.m_display_out->base_path);
     emit executeCommand(m_prefixSudo + "./flash.sh -r jetson-tx2 mmcblk0p1");
+#if defined (Q_OS_WIN)
+    saveLastFlashInfo();
+#endif
 }
 
 void JetsonTx2FlashingInfo::flashing_dtb()
@@ -491,10 +555,10 @@ void JetsonTx2FlashingInfo::flashing_dtb()
         QString dtb_cmd = "cp " + dts_dst_dir + "temp.dtb"
                  + " " + dtb_dst_dir + "tegra186-quill-p3310-1000-c03-00-base.dtb";
         emit executeCommand(m_prefixSudo + dtb_cmd);
-    }
 
-    emit executeCommand(m_prefixSudo + "cd " + currentStatus.m_display_out->base_path);
-    emit executeCommand(m_prefixSudo + "./flash.sh -r -k kernel-dtb jetson-tx2 mmcblk0p1");
+        emit executeCommand(m_prefixSudo + "cd " + currentStatus.m_display_out->base_path);
+        emit executeCommand(m_prefixSudo + "./flash.sh -r -k kernel-dtb jetson-tx2 mmcblk0p1");
+    }
 }
 
 bool JetsonTx2FlashingInfo::getLastProject()
@@ -502,63 +566,91 @@ bool JetsonTx2FlashingInfo::getLastProject()
     QFile settings("last_log.xml");
     if(!settings.exists())
     {
+        qDebug() << "last_log.xml not exist";
         return false;
     }
 
     QDomDocument doc;
     doc.setContent(&settings);
     settings.close();
+    bool result = true;
 
     QDomElement top_element = doc.firstChildElement("LAST_LOG");
     if(top_element.isNull())
     {
-        return false;
+        qDebug() << "last_log.xml (LAST_LOG) not exist";
+        result = false;
     }
 
     QString date = top_element.attribute("DATE");
     QString time = top_element.attribute("TIME");
 
-    qDebug() << "last update: " << date << time;
+    emit lastUpdatedTime(QVariant("last update: " + date + " " + time));
 
-    QDomElement project = top_element.firstChildElement("PROJECT");
-    if(!project.isNull())
+    QDomNodeList project = top_element.elementsByTagName("PROJECT");
+    if(project.count() == 0)
     {
-        return false;
+        qDebug() << "last_log.xml (PROJECT) not exist";
+        result = false;
     }
-    currentStatus.project = project.attribute("NAME");
-
-    QDomElement disp_out = top_element.firstChildElement("DISPLAY_OUT");
-    if(!disp_out.isNull())
+    else
     {
-        return false;
+        lastUpdatedStatus.project = project.at(0).toElement().attribute("NAME");
+        emit lastProject(lastUpdatedStatus.project);
     }
-    currentStatus.display_out = disp_out.attribute("NAME");
 
-    QDomElement ip = top_element.firstChildElement("IP");
-    if(!ip.isNull())
+    QDomNodeList disp_out = top_element.elementsByTagName("DISPLAY_OUT");
+    if(disp_out.count() == 0)
     {
-        return false;
+        qDebug() << "last_log.xml (DISPLAY_OUT) not exist";
+        result = false;
     }
-    currentStatus.ip = ip.attribute("NAME");
-
-    QDomElement remote_upgrade = top_element.firstChildElement("REMOTE_UPGRADE");
-    if(!remote_upgrade.isNull())
+    else
     {
-        return false;
+        lastUpdatedStatus.display_out = disp_out.at(0).toElement().attribute("NAME");
+        emit lastDispOut(lastUpdatedStatus.display_out);
     }
-    currentStatus.remote_upgrade = remote_upgrade.attribute("NAME");
 
-    QDomElement disp_ctrl = top_element.firstChildElement("DISP_CTRL");
-    if(!disp_ctrl.isNull())
+    QDomNodeList ip = top_element.elementsByTagName("IP");
+    if(ip.count() == 0)
     {
-        return false;
+        qDebug() << "last_log.xml (IP) not exist";
+        result = false;
     }
-    currentStatus.disp_ctrl = disp_ctrl.attribute("NAME");
+    else
+    {
+        lastUpdatedStatus.ip = ip.at(0).toElement().attribute("NAME");
+        emit lastIp(lastUpdatedStatus.ip);
+    }
 
-    return true;
+    QDomNodeList remote_upgrade = top_element.elementsByTagName("REMOTE_UPGRADE");
+    if(remote_upgrade.count() == 0)
+    {
+        qDebug() << "last_log.xml (REMOTE_UPGRADE) not exist";
+        result = false;
+    }
+    else
+    {
+        lastUpdatedStatus.remote_upgrade = remote_upgrade.at(0).toElement().attribute("NAME");
+        emit lastRemoteUpgrade(lastUpdatedStatus.remote_upgrade);
+    }
+
+    QDomNodeList disp_ctrl = top_element.elementsByTagName("DISP_CTRL");
+    if(disp_ctrl.count() == 0)
+    {
+        qDebug() << "last_log.xml (DISP_CTRL) not exist";
+        result = false;
+    }
+    else
+    {
+        lastUpdatedStatus.disp_ctrl = disp_ctrl.at(0).toElement().attribute("NAME");
+        emit lastDispCtrl(lastUpdatedStatus.disp_ctrl);
+    }
+
+    return result;
 }
 
-void JetsonTx2FlashingInfo::updateUpgradeAppList()
+void JetsonTx2FlashingInfo::updateUpgradeAppList(bool last_project_exists)
 {
     DisplayOut * p_disp = currentStatus.m_display_out;
     if(p_disp == Q_NULLPTR)
@@ -568,10 +660,11 @@ void JetsonTx2FlashingInfo::updateUpgradeAppList()
     }
 
 //    QString dir_path = p_disp->base_path + "/" + p_disp->rsc_dir;
-    QString dir_path = p_disp->rsc_dir;
+    QString dir_path = m_flashingAppPath + "/" + p_disp->rsc_dir;
     QDir dir(dir_path);
     if(!dir.exists())
     {
+        qDebug() << dir_path << " not exist";
         emit upgradeAppListChanged();
         return;
     }
@@ -581,19 +674,31 @@ void JetsonTx2FlashingInfo::updateUpgradeAppList()
     QStringList results = dir.entryList(filters, QDir::Files | QDir::NoDot | QDir::NoDotDot);
 
     m_upgradeAppList.clear();
-    foreach(QString file, results)
+    int idx_upgrade = -1;
+    for(int index=0; index<results.count(); index++)
     {
-        //m_upgradeAppList.append(file.remove(0, 14));
+        QString file = results.at(index);
         m_upgradeAppList.append(file);
+        if((last_project_exists) && (file == currentStatus.remote_upgrade))
+        {
+            idx_upgrade = index;
+            currentStatus.remote_upgrade = file;
+        }
     }
-    if(results.count() > 0)
+    if((idx_upgrade < 0) && (m_upgradeAppList.count() > 0))
     {
+        idx_upgrade = 0;
         currentStatus.remote_upgrade = m_upgradeAppList.at(0);
     }
     emit upgradeAppListChanged();
+
+    if(idx_upgrade >= 0)
+    {
+        emit currentIdxRemoteUpgrade(idx_upgrade);
+    }
 }
 
-void JetsonTx2FlashingInfo::updateDispAppList()
+void JetsonTx2FlashingInfo::updateDispAppList(bool last_project_exists)
 {
     DisplayOut * p_disp = currentStatus.m_display_out;
     if(p_disp == Q_NULLPTR)
@@ -603,10 +708,11 @@ void JetsonTx2FlashingInfo::updateDispAppList()
     }
 
 //    QString dir_path = p_disp->base_path + "/" + p_disp->app_dir;
-    QString dir_path = p_disp->app_dir;
+    QString dir_path = m_flashingAppPath + "/" + p_disp->app_dir;
     QDir dir(dir_path);
     if(!dir.exists())
     {
+        qDebug() << dir_path << " not exist";
         emit dispAppListChanged();
         return;
     }
@@ -616,23 +722,28 @@ void JetsonTx2FlashingInfo::updateDispAppList()
     QStringList results = dir.entryList(filters, QDir::Files | QDir::NoDot | QDir::NoDotDot);
 
     m_dispAppList.clear();
-    foreach(QString file, results)
+    int idx_dispctrl = -1;
+    for(int index=0; index<results.count(); index++)
     {
-        if(!p_disp->major_prefix.isNull() && !p_disp->major_prefix.isEmpty())
-        {
-            if(file.at(p_disp->app_prefix.length()) != p_disp->major_prefix.at(0))
-            {
-                continue;
-            }
-        }
-        //m_dispAppList.append(file.remove(0, p_disp->app_prefix.length()));
+        QString file = results.at(index);
         m_dispAppList.append(file);
+        if((last_project_exists) && (file == currentStatus.disp_ctrl))
+        {
+            idx_dispctrl = index;
+            currentStatus.disp_ctrl = file;
+        }
     }
-    if(m_dispAppList.count() > 0)
+    if((idx_dispctrl < 0) && (m_dispAppList.count() > 0))
     {
+        idx_dispctrl = 0;
         currentStatus.disp_ctrl = m_dispAppList.at(0);
     }
     emit dispAppListChanged();
+
+    if(idx_dispctrl >= 0)
+    {
+        emit currentIdxDispCtrl(idx_dispctrl);
+    }
 }
 
 void JetsonTx2FlashingInfo::clearSettingInfo()
