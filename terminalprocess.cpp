@@ -1,10 +1,14 @@
 #include "terminalprocess.h"
+#if defined (Q_OS_LINUX)
+#include <signal.h>
+#endif
 
 //#if defined (Q_OS_LINUX)
 #if (USE_BASH==0)
 
 TerminalProcess::TerminalProcess(QObject *parent) : QObject(parent)
 {
+    print_prompt = false;
     //class를 qml에서 사용하기 위해서 등록해주는 부분
     qmlRegisterType<TerminalProcess>("TerminalProcess", 1, 0,
                                      "TerminalProcess");
@@ -170,6 +174,7 @@ void TerminalProcess::executeCommand(const QString &command)
 
 TerminalProcess::TerminalProcess(QObject *parent) : QObject(parent)
 {
+    print_prompt = false;
     //class를 qml에서 사용하기 위해서 등록해주는 부분
     qmlRegisterType<TerminalProcess>("TerminalProcess", 1, 0,
                                      "TerminalProcess");
@@ -226,10 +231,13 @@ void TerminalProcess::setWindow(QQuickWindow *window)
 {
     mMainView = window;
 
+    QObject::connect(mMainView, SIGNAL(usePrompt(bool)), this, SLOT(use_prompt(bool)));
     QObject::connect(mMainView, SIGNAL(keyPressed(QString)), this, SLOT(inputKey(QString)));
     QObject::connect(this, SIGNAL(recv(QVariant)), mMainView, SLOT(qmlProcessRecv(QVariant)),
                      Qt::DirectConnection);
     QObject::connect(this, SIGNAL(remove()), mMainView, SLOT(qmlRemoveChar()),
+                     Qt::DirectConnection);
+    QObject::connect(this, SIGNAL(removeProgressLine()), mMainView, SLOT(qmlRemoveProgressLine()),
                      Qt::DirectConnection);
 
 #if (USE_THREAD==1)
@@ -259,10 +267,17 @@ void TerminalProcess::inputKey(const QString &key)
     {
         if(key == "\r")
         {
-            m_command.append("\n");
-            m_process.write(m_command.toUtf8());
-            m_command.clear();
-            emit recv(QVariant(key));
+            if(print_prompt && m_command.isEmpty())
+            {
+                emit recv(QVariant("\rprompt >> "));
+            }
+            else
+            {
+                m_command.append("\n");
+                m_process.write(m_command.toUtf8());
+                m_command.clear();
+                emit recv(QVariant(key));
+            }
         }
         else if(key == "\b")
         {
@@ -325,39 +340,101 @@ void TerminalProcess::finished(int exitCode, QProcess::ExitStatus exitStatus)
 
 void TerminalProcess::readyStdOut()
 {
-    QByteArray read = m_process.readAll();
-    QString string = QString::fromLocal8Bit(read);//m_codec->toUnicode(read);
-    emit recv(QVariant(string));
-#if defined (Q_OS_LINUX)
-    emit recv(QVariant("prompt >> "));
-#endif
+    while(m_process.bytesAvailable())
+    {
+        QByteArray read = m_process.readLine();
+        QString string = QString::fromLocal8Bit(read);//m_codec->toUnicode(read);
+        if(!string.contains("\r") && !string.contains("\n"))
+        {
+            m_outString += string;
+            continue;
+        }
+        else
+        {
+            if(!m_outString.isEmpty())
+            {
+                m_outString += string;
+                string = m_outString;
+                m_outString.clear();
+            }
+        }
 
-    if(string.contains("flashed successfully"))
-    {
-        qDebug() << "readyStdOut: " << string;
+        qDebug() << string;
+        if(!string.contains("100%\r") && string.contains("%\r"))
+        {
+            emit removeProgressLine();
+        }
+
+        emit recv(QVariant(string));
+
+        if(string.contains("Writing partition APP with system.img"))
+        {
+            emit recv(QVariant("[  15.7035 ] [                                                ] 000%\r"));
+        }
+        if(string.contains("flashed successfully"))
+        {
+            qDebug() << "readyStdOut: " << string;
+            emit saveLastFlashInfo();
+        }
+        if(string.contains("Failed") || string.contains("failed") || string.contains("Error"))
+        {
+            qDebug() << "readyStdOut: " << string;
+        }
     }
-    if(string.contains("Failed") || string.contains("failed") || string.contains("Error"))
+
+    if(print_prompt)
     {
-        qDebug() << "readyStdOut: " << string;
+        emit recv(QVariant("prompt >> "));
     }
 }
 
 void TerminalProcess::readyStdErr()
 {
-    QByteArray read = m_process.readAll();
-    QString string = QString::fromLocal8Bit(read);//m_codec->toUnicode(read);
-    emit recv(QVariant(string));
-#if defined (Q_OS_LINUX)
-    emit recv(QVariant("prompt >> "));
-#endif
+    while(m_process.bytesAvailable())
+    {
+        QByteArray read = m_process.readLine();
+        QString string = QString::fromLocal8Bit(read);//m_codec->toUnicode(read);
+        if(!string.contains("\r") && !string.contains("\n"))
+        {
+            m_errString += string;
+            continue;
+        }
+        else
+        {
+            if(!m_errString.isEmpty())
+            {
+                m_errString += string;
+                string = m_errString;
+                m_errString.clear();
+            }
+        }
 
-    if(string.contains("flashed successfully"))
-    {
-        qDebug() << "readyStdErr: " << string;
+        qDebug() << string;
+        if(!string.contains("100%\r") && string.contains("%\r"))
+        {
+            emit removeProgressLine();
+        }
+
+        emit recv(QVariant(string));
+
+        if(string.contains("Writing partition APP with system.img"))
+        {
+            emit recv(QVariant("[  15.7035 ] [                                                ] 000%\r"));
+        }
+        if(string.contains("flashed successfully"))
+        {
+            qDebug() << "readyStdErr: " << string;
+            emit saveLastFlashInfo();
+        }
+        if(string.contains("Failed") || string.contains("failed") || string.contains("Error"))
+        {
+            qDebug() << "readyStdErr: " << string;
+        }
     }
-    if(string.contains("Failed") || string.contains("failed") || string.contains("Error"))
+
+    if(print_prompt)
     {
-        qDebug() << "readyStdErr: " << string;
+        emit recv(QVariant("prompt >> "));
     }
 }
 
@@ -370,6 +447,11 @@ void TerminalProcess::executeCommand(const QString &command)
     QString cmd = command + "\n";
     m_process.write(cmd.toUtf8());
 #endif
+}
+
+void TerminalProcess::use_prompt(bool check)
+{
+    print_prompt = check;
 }
 
 #endif

@@ -87,6 +87,7 @@ public:
 signals:
     void recv(QVariant data);
     void remove();
+    void removeProgressLine();
     void saveLastFlashInfo();
 
 public slots:
@@ -101,9 +102,14 @@ public slots:
     void readyStdErr();
 #endif
     void executeCommand(const QString &command);
+    void use_prompt(bool check);
 
 private:
     QQuickWindow* mMainView;
+
+    QString m_outString;
+    QString m_errString;
+    bool print_prompt;
 
     QProcess m_process;
 #if (USE_THREAD==1)

@@ -523,7 +523,7 @@ void JetsonTx2FlashingInfo::flashing()
             emit executeCommand(m_prefixSudo + ip_cmd);
         }
 
-        emit executeCommand(m_prefixSudo + "cd " + currentStatus.m_display_out->base_path);
+        emit executeCommand("cd " + currentStatus.m_display_out->base_path);
         emit executeCommand(m_prefixSudo + "./flash.sh jetson-tx2 mmcblk0p1");
 #if defined (Q_OS_WIN)
         saveLastFlashInfo();
@@ -533,7 +533,7 @@ void JetsonTx2FlashingInfo::flashing()
 
 void JetsonTx2FlashingInfo::flashingWithoutMakingImage()
 {
-    emit executeCommand(m_prefixSudo + "cd " + currentStatus.m_display_out->base_path);
+    emit executeCommand("cd " + currentStatus.m_display_out->base_path);
     emit executeCommand(m_prefixSudo + "./flash.sh -r jetson-tx2 mmcblk0p1");
 #if defined (Q_OS_WIN)
     saveLastFlashInfo();

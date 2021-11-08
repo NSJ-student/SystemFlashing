@@ -22,6 +22,7 @@ Window {
     signal flashImageNoMake();
     signal flashDtb();
 
+    signal usePrompt(bool check);
     signal loadConfig(string path);
     signal projectChanged(int index);
     signal displayChanged(int index);
@@ -47,6 +48,10 @@ Window {
 
     function qmlRemoveChar(){
         textArea.remove(textArea.length-1, textArea.length);
+    }
+
+    function qmlRemoveProgressLine(){
+        textArea.remove(textArea.length-69, textArea.length);
     }
 
     function qmlConnected() {
@@ -401,6 +406,13 @@ Window {
                     Layout.topMargin: 10
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     Layout.columnSpan: 4
+
+                    CheckBox {
+                        id: cbPrompt
+                        onCheckedChanged: {
+                            usePrompt(cbPrompt.checked);
+                        }
+                    }
 
                     Button {
                         id: btnLoadLastSetting
