@@ -90,6 +90,9 @@ signals:
     void removeProgressLine();
     void saveLastFlashInfo();
 
+    void activateControls();
+    void deactivateControls();
+
 public slots:
     void start();
     void write(const QString &command);

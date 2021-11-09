@@ -32,6 +32,14 @@ Window {
 
     signal keyPressed(string key);
 
+    function qmlActivateControlBox() {
+        controlBox.enabled = true
+    }
+
+    function qmlDeactivateControlBox() {
+        controlBox.enabled = false
+    }
+
     function qmlDisplayOut(data) {
         if(cbDisplayOut.count > 0)
         {
@@ -214,6 +222,16 @@ Window {
                     font.pixelSize: 10
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     Layout.columnSpan: 1
+                    onTextChanged: {
+                        if(txtLastProject.text != cbProject.currentText)
+                        {
+                            txtLastProject.color = "red";
+                        }
+                        else
+                        {
+                            txtLastProject.color = "black";
+                        }
+                    }
                 }
 
                 Text {
@@ -304,6 +322,16 @@ Window {
                     font.pixelSize: 10
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     Layout.columnSpan: 2
+                    onTextChanged: {
+                        if(txtLastDispOut.text != cbDisplayOut.currentText)
+                        {
+                            txtLastDispOut.color = "red";
+                        }
+                        else
+                        {
+                            txtLastDispOut.color = "black";
+                        }
+                    }
                 }
 
                 Text {
@@ -312,6 +340,16 @@ Window {
                     font.pixelSize: 10
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     Layout.columnSpan: 2
+                    onTextChanged: {
+                        if(txtLastRemoteUpgrade.text != cbRemoteUpgrade.currentText)
+                        {
+                            txtLastRemoteUpgrade.color = "red";
+                        }
+                        else
+                        {
+                            txtLastRemoteUpgrade.color = "black";
+                        }
+                    }
                 }
 
                 Text {
@@ -388,6 +426,16 @@ Window {
                     font.pixelSize: 10
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     Layout.columnSpan: 2
+                    onTextChanged: {
+                        if(txtLastIp.text != cbIp.currentText)
+                        {
+                            txtLastIp.color = "red";
+                        }
+                        else
+                        {
+                            txtLastIp.color = "black";
+                        }
+                    }
                 }
 
                 Text {
@@ -398,6 +446,16 @@ Window {
                     font.pixelSize: 10
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     Layout.columnSpan: 2
+                    onTextChanged: {
+                        if(txtLastDispCtrl.text != cbDispCtrl.currentText)
+                        {
+                            txtLastDispCtrl.color = "red";
+                        }
+                        else
+                        {
+                            txtLastDispCtrl.color = "black";
+                        }
+                    }
                 }
 
                 RowLayout {

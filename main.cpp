@@ -47,6 +47,7 @@ int main(int argc, char *argv[])
     QObject *root = engine.rootObjects().first();
     //qrc:/main.qml를 등록한 엔진의 object값을 window타입으로 변경해준다.
     QQuickWindow * p_window = qobject_cast<QQuickWindow *>(root);
+    p_window->setIcon(QIcon(":/icon/firmware.ico"));
 
     QObject::connect(&tx2_info, SIGNAL(executeCommand(QString)), &terminal, SLOT(executeCommand(QString)));
     QObject::connect(&terminal, SIGNAL(saveLastFlashInfo()), &tx2_info, SLOT(saveLastFlashInfo()));

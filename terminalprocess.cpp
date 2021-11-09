@@ -240,6 +240,8 @@ void TerminalProcess::setWindow(QQuickWindow *window)
     QObject::connect(this, SIGNAL(removeProgressLine()), mMainView, SLOT(qmlRemoveProgressLine()),
                      Qt::DirectConnection);
 
+    QObject::connect(this, SIGNAL(activateControls()), mMainView, SLOT(qmlActivateControlBox()));
+    QObject::connect(this, SIGNAL(deactivateControls()), mMainView, SLOT(qmlDeactivateControlBox()));
 #if (USE_THREAD==1)
     if(!m_recvThread.isRunning())
     {
@@ -351,6 +353,11 @@ void TerminalProcess::readyStdOut()
         }
         else
         {
+            if((string.right(1) != "\r") && (string.right(1) != "\n") && (string.right(2) != "\r\n"))
+            {
+                m_outString += string;
+                continue;
+            }
             if(!m_outString.isEmpty())
             {
                 m_outString += string;
@@ -362,23 +369,32 @@ void TerminalProcess::readyStdOut()
         qDebug() << string;
         if(!string.contains("100%\r") && string.contains("%\r"))
         {
-            emit removeProgressLine();
+            int percent_count = string.count("%\r");
+            int line_count = string.count("\r");
+            if(percent_count == line_count)
+            {
+                emit removeProgressLine();
+                if(percent_count > 1)
+                {
+                    string = string.left(69);
+                }
+            }
         }
 
         emit recv(QVariant(string));
 
-        if(string.contains("Writing partition APP with system.img"))
+        if(string.contains("Writing partition APP with system.img") ||
+                string.contains("Sending blob"))
         {
-            emit recv(QVariant("[  15.7035 ] [                                                ] 000%\r"));
+            emit recv(QVariant("[          ] [                                                ] 000%\r"));
         }
         if(string.contains("flashed successfully"))
         {
-            qDebug() << "readyStdOut: " << string;
             emit saveLastFlashInfo();
         }
         if(string.contains("Failed") || string.contains("failed") || string.contains("Error"))
         {
-            qDebug() << "readyStdOut: " << string;
+            emit activateControls();
         }
     }
 
@@ -401,6 +417,11 @@ void TerminalProcess::readyStdErr()
         }
         else
         {
+            if((string.right(1) != "\r") && (string.right(1) != "\n") && (string.right(2) != "\r\n"))
+            {
+                m_outString += string;
+                continue;
+            }
             if(!m_errString.isEmpty())
             {
                 m_errString += string;
@@ -412,23 +433,32 @@ void TerminalProcess::readyStdErr()
         qDebug() << string;
         if(!string.contains("100%\r") && string.contains("%\r"))
         {
-            emit removeProgressLine();
+            int percent_count = string.count("%\r");
+            int line_count = string.count("\r");
+            if(percent_count == line_count)
+            {
+                emit removeProgressLine();
+                if(percent_count > 1)
+                {
+                    string = string.left(69);
+                }
+            }
         }
 
         emit recv(QVariant(string));
 
-        if(string.contains("Writing partition APP with system.img"))
+        if(string.contains("Writing partition APP with system.img") ||
+                string.contains("Sending blob"))
         {
-            emit recv(QVariant("[  15.7035 ] [                                                ] 000%\r"));
+            emit recv(QVariant("[          ] [                                                ] 000%\r"));
         }
         if(string.contains("flashed successfully"))
         {
-            qDebug() << "readyStdErr: " << string;
             emit saveLastFlashInfo();
         }
         if(string.contains("Failed") || string.contains("failed") || string.contains("Error"))
         {
-            qDebug() << "readyStdErr: " << string;
+            emit activateControls();
         }
     }
 

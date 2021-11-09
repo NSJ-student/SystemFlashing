@@ -48,6 +48,8 @@ void JetsonTx2FlashingInfo::setWindow(QQuickWindow *window)
     QObject::connect(this, SIGNAL(currentIdxRemoteUpgrade(QVariant)), mQmlView, SLOT(qmlCurrentRemoteUpgrade(QVariant)));
 
     QObject::connect(this, SIGNAL(init()), mQmlView, SLOT(qmlInit()));
+    QObject::connect(this, SIGNAL(activateControls()), mQmlView, SLOT(qmlActivateControlBox()));
+    QObject::connect(this, SIGNAL(deactivateControls()), mQmlView, SLOT(qmlDeactivateControlBox()));
 }
 
 const QStringList JetsonTx2FlashingInfo::projectList()
@@ -322,10 +324,22 @@ void JetsonTx2FlashingInfo::loadSettingInfo(const QString &path)
 
 void JetsonTx2FlashingInfo::saveLastFlashInfo()
 {
+    emit lastProject(currentStatus.project);
+    emit lastDispOut(currentStatus.display_out);
+    emit lastIp(currentStatus.ip);
+    emit lastDispCtrl(currentStatus.disp_ctrl);
+    emit lastRemoteUpgrade(currentStatus.remote_upgrade);
+
+    QString date = QDateTime::currentDateTime().date().toString("yyyy/MM/dd");
+    QString time = QDateTime::currentDateTime().time().toString("HH:mm:ss");
+
+    emit lastUpdatedTime(QVariant("last update: " + date + " " + time));
+    emit activateControls();
+
     QDomDocument doc;
     QDomElement xml = doc.createElement("LAST_LOG");
-    xml.setAttribute("DATE", QDateTime::currentDateTime().date().toString("yyyy/MM/dd"));
-    xml.setAttribute("TIME", QDateTime::currentDateTime().time().toString("HH:mm:ss"));
+    xml.setAttribute("DATE", date);
+    xml.setAttribute("TIME", time);
     doc.appendChild(xml);
 
     QDomElement child_element;
@@ -525,6 +539,7 @@ void JetsonTx2FlashingInfo::flashing()
 
         emit executeCommand("cd " + currentStatus.m_display_out->base_path);
         emit executeCommand(m_prefixSudo + "./flash.sh jetson-tx2 mmcblk0p1");
+        emit deactivateControls();
 #if defined (Q_OS_WIN)
         saveLastFlashInfo();
 #endif
@@ -535,6 +550,7 @@ void JetsonTx2FlashingInfo::flashingWithoutMakingImage()
 {
     emit executeCommand("cd " + currentStatus.m_display_out->base_path);
     emit executeCommand(m_prefixSudo + "./flash.sh -r jetson-tx2 mmcblk0p1");
+    emit deactivateControls();
 #if defined (Q_OS_WIN)
     saveLastFlashInfo();
 #endif

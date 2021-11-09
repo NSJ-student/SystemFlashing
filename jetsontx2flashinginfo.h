@@ -148,6 +148,9 @@ signals:
     void detectUsbName(const QString &name);
     void init();
 
+    void activateControls();
+    void deactivateControls();
+
 public slots:
     void windowCreated();
 
