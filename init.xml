@@ -18,7 +18,7 @@
                DTS="dsi_R32_2.dts"
                BASE_PATH="/mnt/hdd/nvidia_dsi/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra"
                APP_PREFIX="DISP_2CH_CTRL_3"
-               APP_DIR="work_obj/GDE_DSI"
+               APP_DIR="work_obj/DSI"
                RSC_DIR="work_obj"
                DST_PATH="/mnt/hdd/nvidia_dsi/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra/rootfs/home/mik21/Desktop">
     <IP NAME="DEFAULT"/>
@@ -28,7 +28,7 @@
                DTS="dsi_R32_2.dts"
                BASE_PATH="/mnt/hdd/nvidia_dsi/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra"
                APP_PREFIX="DISP_2CH_CTRL_3"
-               APP_DIR="work_obj/GDE_DSI"
+               APP_DIR="work_obj/DSI"
                RSC_DIR="work_obj"
                DST_PATH="/mnt/hdd/nvidia_dsi/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra/rootfs/home/mik21/Desktop">
     <IP NAME="DEFAULT"/>
@@ -39,7 +39,7 @@
                DTS="dsi_R32_2.dts"
                BASE_PATH="/mnt/hdd/nvidia_dsi/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra"
                APP_PREFIX="DISP_2CH_CTRL_8"
-               APP_DIR="work_obj/GDE_DSI"
+               APP_DIR="work_obj/DSI"
                RSC_DIR="work_obj"
                DST_PATH="/mnt/hdd/nvidia_dsi/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra/rootfs/home/mik21/Desktop">
     <IP NAME="DEFAULT"/>
@@ -50,7 +50,7 @@
                DTS="1ch_dsi_R32_2.dts"
                BASE_PATH="/mnt/hdd/nvidia_dsi/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra"
                APP_PREFIX="DISP_CTRL"
-               APP_DIR="work_obj/GDE_DSI"
+               APP_DIR="work_obj/DSI"
                RSC_DIR="work_obj"
                DST_PATH="/mnt/hdd/nvidia_dsi/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra/rootfs/home/mik21/Desktop">
     <IP NAME="DEFAULT"/>
@@ -60,7 +60,7 @@
                DTS="hdmi_ct_R32_2.dts"
                BASE_PATH="/mnt/hdd/nvidia_hdmi/nvidia_sdk/JetPack_4.5_Linux_JETSON_TX2/Linux_for_Tegra"
                APP_PREFIX="K6408GT_eLCV"
-               APP_DIR="work_obj/HDMI_ELCV"
+               APP_DIR="work_obj/HDMI"
                RSC_DIR="work_obj"
                DST_PATH="/mnt/hdd/nvidia_hdmi/nvidia_sdk/JetPack_4.5_Linux_JETSON_TX2/Linux_for_Tegra/rootfs/home/mik21/Desktop">
     <IP NAME="DEFAULT"/>

@@ -18,6 +18,8 @@ Window {
     visible: true
     title: qsTr("Jetson TX2 flashing")
 
+    property bool root_completed : false
+    property bool load_init_config : false
     signal flashImage();
     signal flashImageNoMake();
     signal flashDtb();
@@ -148,12 +150,19 @@ Window {
 
     Component.onCompleted: {
         console.log("window completed");
-        btnFlashImage.enabled = false;
-        btnFlashDTB.enabled = false;
+        btnFlashImage.enabled = false
+        btnFlashDTB.enabled = false
+        root_completed = true
     }
 
     onWindowStateChanged: {
         console.log("windowState: " + windowState);
+        if(root_completed && (load_init_config == false))
+        {
+            load_init_config = true
+            console.log("load init config");
+            loadConfig("init.xml");
+        }
     }
 
     FileDialog {
@@ -477,7 +486,6 @@ Window {
                         text: qsTr("Load")
                         onClicked: {
                             fileDialog.open();
-//                            jetson_obj.loadSettingInfo("D:\\Projects\\JetsonTX2\\Software\\SystemFlashing\\init_test.xml");
                         }
                     }
                     Button {
