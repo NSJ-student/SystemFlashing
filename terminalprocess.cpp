@@ -366,7 +366,7 @@ void TerminalProcess::readyStdOut()
             }
         }
 
-        qDebug() << string;
+//        qDebug() << string;
         if(!string.contains("100%\r") && string.contains("%\r"))
         {
             int percent_count = string.count("%\r");
@@ -430,7 +430,7 @@ void TerminalProcess::readyStdErr()
             }
         }
 
-        qDebug() << string;
+//        qDebug() << string;
         if(!string.contains("100%\r") && string.contains("%\r"))
         {
             int percent_count = string.count("%\r");
