@@ -572,8 +572,9 @@ void JetsonTx2FlashingInfo::flashing_dtb()
                  + " " + dtb_dst_dir + "tegra186-quill-p3310-1000-c03-00-base.dtb";
         emit executeCommand(m_prefixSudo + dtb_cmd);
 
-        emit executeCommand(m_prefixSudo + "cd " + currentStatus.m_display_out->base_path);
+        emit executeCommand("cd " + currentStatus.m_display_out->base_path);
         emit executeCommand(m_prefixSudo + "./flash.sh -r -k kernel-dtb jetson-tx2 mmcblk0p1");
+        emit deactivateControls();
     }
 }
 

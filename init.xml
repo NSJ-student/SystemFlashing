@@ -15,7 +15,7 @@
 
   <DISPLAY_OUT NAME="DSI_2CH"
                DISPLAY="DSI"
-               DTS="dsi_R32_2.dts"
+               DTS="dsi_R32_2_974.dts"
                BASE_PATH="/home/mik21/nvidia_dsi/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra"
                APP_PREFIX="DISP_2CH_CTRL_3"
                APP_DIR="work_obj/DSI"
@@ -25,7 +25,7 @@
   </DISPLAY_OUT>
   <DISPLAY_OUT NAME="DSI_4CH"
                DISPLAY="DSI"
-               DTS="dsi_R32_2.dts"
+               DTS="dsi_R32_2_974.dts"
                BASE_PATH="/home/mik21/nvidia_dsi/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra"
                APP_PREFIX="DISP_2CH_CTRL_3"
                APP_DIR="work_obj/DSI"
@@ -36,7 +36,7 @@
   </DISPLAY_OUT>
   <DISPLAY_OUT NAME="DSI_8CH"
                DISPLAY="DSI"
-               DTS="dsi_R32_2.dts"
+               DTS="dsi_R32_2_810.dts"
                BASE_PATH="/home/mik21/nvidia_dsi/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra"
                APP_PREFIX="DISP_2CH_CTRL_8"
                APP_DIR="work_obj/DSI"

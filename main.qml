@@ -52,7 +52,7 @@ Window {
     function qmlProcessRecv(data){
 //        textArea.(data)
         textArea.insert(textArea.length, data);
-        textArea.cursorPosition = textArea.length-1;
+        textArea.cursorPosition = textArea.length;
 //        cmdWindow.update();
     }
 
@@ -169,15 +169,12 @@ Window {
         id: msgDialog
         icon: StandardIcon.Question
         title: "Project info changed"
-        text: "Regenerate Image?"
+        text: "Regenerate Image. Continue?"
 
-        standardButtons: StandardButton.Yes | StandardButton.No | StandardButton.Abort
+        standardButtons: StandardButton.Yes | StandardButton.No
 
         onYes: {
             flashImage()
-        }
-        onNo: {
-            flashImageNoMake()
         }
     }
 

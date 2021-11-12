@@ -392,6 +392,10 @@ void TerminalProcess::readyStdOut()
         {
             emit saveLastFlashInfo();
         }
+        if(string.contains("updated successfully"))
+        {
+            emit activateControls();
+        }
         if(string.contains("Failed") || string.contains("failed") || string.contains("Error"))
         {
             emit activateControls();
@@ -455,6 +459,10 @@ void TerminalProcess::readyStdErr()
         if(string.contains("flashed successfully"))
         {
             emit saveLastFlashInfo();
+        }
+        if(string.contains("updated successfully"))
+        {
+            emit activateControls();
         }
         if(string.contains("Failed") || string.contains("failed") || string.contains("Error"))
         {
