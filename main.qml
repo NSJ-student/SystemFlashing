@@ -165,6 +165,22 @@ Window {
         }
     }
 
+    MessageDialog {
+        id: msgDialog
+        icon: StandardIcon.Question
+        title: "Project info changed"
+        text: "Regenerate Image?"
+
+        standardButtons: StandardButton.Yes | StandardButton.No | StandardButton.Abort
+
+        onYes: {
+            flashImage()
+        }
+        onNo: {
+            flashImageNoMake()
+        }
+    }
+
     FileDialog {
         id: fileDialog
         title: "Please choose a file"
@@ -507,17 +523,17 @@ Window {
                             */
                             if(txtLastIp.text != cbIp.currentText)
                             {
-                                flashImage()
+                                msgDialog.open()
                                 return
                             }
                             if(txtLastRemoteUpgrade.text != cbRemoteUpgrade.currentText)
                             {
-                                flashImage()
+                                msgDialog.open()
                                 return
                             }
                             if(txtLastDispCtrl.text != cbDispCtrl.currentText)
                             {
-                                flashImage()
+                                msgDialog.open()
                                 return
                             }
 
