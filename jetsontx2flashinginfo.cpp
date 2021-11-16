@@ -533,7 +533,7 @@ void JetsonTx2FlashingInfo::flashing()
             QString ip_src_dir = m_flashingAppPath + "/" + currentStatus.m_display_out->rsc_dir + "/";
             QString ip_dst_dir = currentStatus.m_display_out->base_path + "/" + currentStatus.m_ip->dst_path + "/";
             QString ip_cmd = "cp " + ip_src_dir + currentStatus.m_ip->src_file
-                     + " " + ip_dst_dir + currentStatus.m_ip->src_file;
+                     + " " + ip_dst_dir + "interfaces";
             emit executeCommand(m_prefixSudo + ip_cmd);
         }
 
