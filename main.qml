@@ -206,6 +206,13 @@ Window {
             Layout.topMargin: 20
             font.bold: true
 
+            onWidthChanged: {
+                if(controlBox.width + 40 > root.width)
+                {
+                    root.width = controlBox.width + 40;
+                }
+            }
+
             GridLayout {
                 id: gridLayout
                 anchors.fill: parent
@@ -214,6 +221,7 @@ Window {
 
                 ComboBox {
                     id: cbProject
+                    Layout.fillWidth: true
                     Layout.columnSpan: 3
                     model: jetson_obj.projectList
                     onCurrentIndexChanged: {
@@ -296,6 +304,14 @@ Window {
                             txtLastDispOut.color = "black";
                         }
                     }
+                    onModelChanged: {
+                        var _maxWidth = 0
+                        for(var i = 0; i < model.length; i++){
+                            // TextMetrics does not work with Material Style
+                            _maxWidth = Math.max((model[i].length+1)*cbDisplayOut.font.pointSize, _maxWidth)
+                        }
+                        Layout.minimumWidth = _maxWidth
+                    }
                 }
 
                 Text {
@@ -327,14 +343,9 @@ Window {
                         var _maxWidth = 0
                         for(var i = 0; i < model.length; i++){
                             // TextMetrics does not work with Material Style
-                            _maxWidth = Math.max((model[i].length+1)*cbRemoteUpgrade.font.pixelSize, _maxWidth)
+                            _maxWidth = Math.max((model[i].length+1)*cbRemoteUpgrade.font.pointSize, _maxWidth)
                         }
                         Layout.minimumWidth = _maxWidth
-
-                        if(_maxWidth > 140)
-                        {
-                            root.width = root.minimumWidth + (_maxWidth-140);
-                        }
                     }
                 }
 
@@ -431,14 +442,9 @@ Window {
                         var _maxWidth = 0
                         for(var i = 0; i < model.length; i++){
                             // TextMetrics does not work with Material Style
-                            _maxWidth = Math.max((model[i].length+1)*cbDispCtrl.font.pixelSize, _maxWidth)
+                            _maxWidth = Math.max((model[i].length+1)*cbDispCtrl.font.pointSize, _maxWidth)
                         }
                         Layout.minimumWidth = _maxWidth
-
-                        if(_maxWidth > 140)
-                        {
-                            root.width = root.minimumWidth + (_maxWidth-140);
-                        }
                     }
                 }
 

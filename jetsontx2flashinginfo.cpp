@@ -548,6 +548,20 @@ void JetsonTx2FlashingInfo::flashing()
 
 void JetsonTx2FlashingInfo::flashingWithoutMakingImage()
 {
+    // always copy dtb
+    QString dts_src_dir = m_flashingAppPath + "/"+ currentStatus.m_display_out->rsc_dir + "/";
+    QString dts_dst_dir = m_flashingAppPath + "/"+ currentStatus.m_display_out->rsc_dir + "/";
+    QString dts_cmd = currentStatus.m_display_out->base_path + "/kernel/dtc -I dts -O dtb -o "
+             + dts_dst_dir + "temp.dtb "
+             + dts_src_dir + currentStatus.m_display_out->dts;
+    emit executeCommand(m_prefixSudo + dts_cmd);
+
+    QString dtb_dst_dir = currentStatus.m_display_out->base_path + "/kernel/dtb/";
+    QString dtb_cmd = "cp " + dts_dst_dir + "temp.dtb"
+             + " " + dtb_dst_dir + "tegra186-quill-p3310-1000-c03-00-base.dtb";
+    emit executeCommand(m_prefixSudo + dtb_cmd);
+
+    // start flashing without make image
     emit executeCommand("cd " + currentStatus.m_display_out->base_path);
     emit executeCommand(m_prefixSudo + "./flash.sh -r jetson-tx2 mmcblk0p1");
     emit deactivateControls();
