@@ -333,7 +333,7 @@ void JetsonTx2FlashingInfo::saveLastFlashInfo()
     QString date = QDateTime::currentDateTime().date().toString("yyyy/MM/dd");
     QString time = QDateTime::currentDateTime().time().toString("HH:mm:ss");
 
-    emit lastUpdatedTime(QVariant("last update: " + date + " " + time));
+    emit lastUpdatedTime(QVariant("last flashing: " + date + " " + time));
     emit activateControls();
 
     QDomDocument doc;
@@ -616,7 +616,7 @@ bool JetsonTx2FlashingInfo::getLastProject()
     QString date = top_element.attribute("DATE");
     QString time = top_element.attribute("TIME");
 
-    emit lastUpdatedTime(QVariant("last update: " + date + " " + time));
+    emit lastUpdatedTime(QVariant("last flashing: " + date + " " + time));
 
     QDomNodeList project = top_element.elementsByTagName("PROJECT");
     if(project.count() == 0)

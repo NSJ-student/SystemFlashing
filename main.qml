@@ -218,7 +218,7 @@ Window {
                 anchors.fill: parent
                 rows: 8
                 columns: 4
-
+///// ROW 1 /////////////////////////////////////////////////////////////
                 ComboBox {
                     id: cbProject
                     Layout.fillWidth: true
@@ -230,7 +230,7 @@ Window {
                     onCurrentTextChanged: {
                         if(txtLastProject.text != cbProject.currentText)
                         {
-                            txtLastProject.color = "red";
+                            txtLastProject.color = "orange";
                         }
                         else
                         {
@@ -255,7 +255,7 @@ Window {
                     onTextChanged: {
                         if(txtLastProject.text != cbProject.currentText)
                         {
-                            txtLastProject.color = "red";
+                            txtLastProject.color = "orange";
                         }
                         else
                         {
@@ -271,7 +271,7 @@ Window {
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     Layout.columnSpan: 3
                 }
-
+///// ROW 2 /////////////////////////////////////////////////////////////
                 ToolSeparator {
                     id: toolSeparator
                     clip: false
@@ -279,7 +279,7 @@ Window {
                     Layout.fillWidth: true
                     orientation: Qt.Horizontal
                 }
-
+///// ROW 3 /////////////////////////////////////////////////////////////
                 Text {
                     id: text6
                     text: qsTr("Display Out")
@@ -297,7 +297,7 @@ Window {
                     onCurrentTextChanged: {
                         if(txtLastDispOut.text != cbDisplayOut.currentText)
                         {
-                            txtLastDispOut.color = "red";
+                            txtLastDispOut.color = "orange";
                         }
                         else
                         {
@@ -336,7 +336,7 @@ Window {
                         }
                         else
                         {
-                            txtLastRemoteUpgrade.color = "black";
+                            txtLastRemoteUpgrade.color = "green";
                         }
                     }
                     onModelChanged: {
@@ -358,7 +358,7 @@ Window {
                     onTextChanged: {
                         if(txtLastDispOut.text != cbDisplayOut.currentText)
                         {
-                            txtLastDispOut.color = "red";
+                            txtLastDispOut.color = "orange";
                         }
                         else
                         {
@@ -380,11 +380,11 @@ Window {
                         }
                         else
                         {
-                            txtLastRemoteUpgrade.color = "black";
+                            txtLastRemoteUpgrade.color = "green";
                         }
                     }
                 }
-
+///// ROW 4 /////////////////////////////////////////////////////////////
                 Text {
                     id: text3
                     width: 11
@@ -408,7 +408,7 @@ Window {
                         }
                         else
                         {
-                            txtLastIp.color = "black";
+                            txtLastIp.color = "green";
                         }
                     }
                 }
@@ -435,7 +435,7 @@ Window {
                         }
                         else
                         {
-                            txtLastDispCtrl.color = "black";
+                            txtLastDispCtrl.color = "green";
                         }
                     }
                     onModelChanged: {
@@ -461,7 +461,7 @@ Window {
                         }
                         else
                         {
-                            txtLastIp.color = "black";
+                            txtLastIp.color = "green";
                         }
                     }
                 }
@@ -481,8 +481,19 @@ Window {
                         }
                         else
                         {
-                            txtLastDispCtrl.color = "black";
+                            txtLastDispCtrl.color = "green";
                         }
+                    }
+                }
+/////////////////////////////////////////////////////////////////////////
+                CheckBox {
+                    id: cbPrompt
+                    text: qsTr("Prompt")
+                    Layout.topMargin: 10
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+                    Layout.columnSpan: 1
+                    onCheckedChanged: {
+                        usePrompt(cbPrompt.checked);
                     }
                 }
 
@@ -491,18 +502,11 @@ Window {
                     Layout.fillWidth: true
                     Layout.topMargin: 10
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    Layout.columnSpan: 4
-
-                    CheckBox {
-                        id: cbPrompt
-                        onCheckedChanged: {
-                            usePrompt(cbPrompt.checked);
-                        }
-                    }
+                    Layout.columnSpan: 3
 
                     Button {
                         id: btnLoadLastSetting
-                        text: qsTr("Load")
+                        text: qsTr("Load Config")
                         onClicked: {
                             fileDialog.open();
                         }
