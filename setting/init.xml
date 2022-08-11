@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PROJECT_DB VERSION="1.00">
+
+    <USB NAME="NVidia" />
+    <SUDO NAME="roqkfdmfwkfgkwk!" />
+
+  <PROJECT_lIST>
+    <PROJECT NAME="K-6402GDE" DISPLAY_OUT="DSI_2CH" />
+    <PROJECT NAME="K-6402GP" DISPLAY_OUT="DSI_2CH" />
+    <PROJECT NAME="K-6404GT" DISPLAY_OUT="DSI_4CH" />
+    <PROJECT NAME="K-6408GT" DISPLAY_OUT="DSI_8CH" />
+    <PROJECT NAME="K-6408GT eLCV" DISPLAY_OUT="HDMI_no_sound" />
+    <PROJECT NAME="K-6408CT" DISPLAY_OUT="HDMI_sound" />
+    <PROJECT NAME="K-6401CP" DISPLAY_OUT="HDMI_sound" />
+    <PROJECT NAME="K-6401DSP" DISPLAY_OUT="HDMI" />
+  </PROJECT_lIST>
+
+  <DISPLAY_OUT NAME="DSI_2CH"
+               DISPLAY="DSI"
+               DTS="dsi_R32_2_974.dts"
+               BASE_PATH="/mnt/ubuntu_backup/nvidia_dsi/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra"
+               APP_PREFIX="DISP_2CH_CTRL_3"
+               APP_DIR="work_obj/DSI"
+               RSC_DIR="work_obj"
+               DST_PATH="/mnt/ubuntu_backup/nvidia_dsi/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra/rootfs/home/mik21/Desktop">
+    <IP NAME="DEFAULT"/>
+  </DISPLAY_OUT>
+  <DISPLAY_OUT NAME="DSI_4CH"
+               DISPLAY="DSI"
+               DTS="dsi_R32_2_974.dts"
+               BASE_PATH="/mnt/ubuntu_backup/nvidia_dsi/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra"
+               APP_PREFIX="DISP_2CH_CTRL_3"
+               APP_DIR="work_obj/DSI"
+               RSC_DIR="work_obj"
+               DST_PATH="/mnt/ubuntu_backup/nvidia_dsi/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra/rootfs/home/mik21/Desktop">
+    <IP NAME="DEFAULT"/>
+    <IP NAME="RIGHT"/>
+  </DISPLAY_OUT>
+  <DISPLAY_OUT NAME="DSI_8CH"
+               DISPLAY="DSI"
+               DTS="dsi_R32_2_810.dts"
+               BASE_PATH="/mnt/ubuntu_backup/nvidia_dsi/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra"
+               APP_PREFIX="DISP_2CH_CTRL"
+               APP_DIR="work_obj/DSI"
+               RSC_DIR="work_obj"
+               DST_PATH="/mnt/ubuntu_backup/nvidia_dsi/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra/rootfs/home/mik21/Desktop">
+    <IP NAME="DEFAULT"/>
+    <IP NAME="RIGHT"/>
+  </DISPLAY_OUT>
+  <DISPLAY_OUT NAME="DSI_1CH"
+               DISPLAY="DSI"
+               DTS="1ch_dsi_R32_2.dts"
+               BASE_PATH="/mnt/ubuntu_backup/nvidia_dsi/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra"
+               APP_PREFIX="DISP_CTRL"
+               APP_DIR="work_obj/DSI"
+               RSC_DIR="work_obj"
+               DST_PATH="/mnt/ubuntu_backup/nvidia_dsi/nvidia_sdk/JetPack_4.4.1_Linux_JETSON_TX2/Linux_for_Tegra/rootfs/home/mik21/Desktop">
+    <IP NAME="DEFAULT"/>
+  </DISPLAY_OUT>
+  <DISPLAY_OUT NAME="HDMI_no_sound"
+               DISPLAY="HDMI"
+               DTS="pinmux_hdmi_elcv_R32_5.dts"
+               BASE_PATH="/mnt/ubuntu_backup/nvidia_hdmi/nvidia_sdk/JetPack_4.5_Linux_JETSON_TX2/Linux_for_Tegra"
+               APP_PREFIX="K6408GT_eLCV"
+               APP_DIR="work_obj/HDMI"
+               RSC_DIR="work_obj"
+               DST_PATH="/mnt/ubuntu_backup/nvidia_hdmi/nvidia_sdk/JetPack_4.5_Linux_JETSON_TX2/Linux_for_Tegra/rootfs/home/mik21/Desktop">
+    <IP NAME="DEFAULT"/>
+  </DISPLAY_OUT>
+  <DISPLAY_OUT NAME="HDMI_sound"
+               DISPLAY="HDMI"
+               DTS="pinmux_hdmi_ct_cp_R32_5.dts"
+               BASE_PATH="/mnt/ubuntu_backup/nvidia_hdmi/nvidia_sdk/JetPack_4.5_Linux_JETSON_TX2/Linux_for_Tegra"
+               APP_PREFIX="DISP_CTRL"
+               APP_DIR="work_obj/HDMI"
+               RSC_DIR="work_obj"
+               DST_PATH="/mnt/ubuntu_backup/nvidia_hdmi/nvidia_sdk/JetPack_4.5_Linux_JETSON_TX2/Linux_for_Tegra/rootfs/home/mik21/Desktop">
+    <IP NAME="DEFAULT"/>
+  </DISPLAY_OUT>
+  <DISPLAY_OUT NAME="HDMI"
+               DISPLAY="HDMI"
+               DTS="hdmi_R32_2.dts"
+               BASE_PATH="/mnt/ubuntu_backup/nvidia_hdmi/nvidia_sdk/JetPack_4.5_Linux_JETSON_TX2/Linux_for_Tegra"
+               APP_PREFIX="DISP_CTRL"
+               APP_DIR="work_obj/HDMI"
+               RSC_DIR="work_obj"
+               DST_PATH="/mnt/ubuntu_backup/nvidia_hdmi/nvidia_sdk/JetPack_4.5_Linux_JETSON_TX2/Linux_for_Tegra/rootfs/home/mik21/Desktop">
+    <IP NAME="DEFAULT"/>
+  </DISPLAY_OUT>
+
+  <IP_LIST NAME="DEFAULT" ADDRESS="192.168.20.192" SRC_FILE="interfaces_192" DST_PATH="rootfs/etc/network"/>
+  <IP_LIST NAME="RIGHT" ADDRESS="192.168.20.193" SRC_FILE="interfaces_193" DST_PATH="rootfs/etc/network"/>
+
+</PROJECT_DB>

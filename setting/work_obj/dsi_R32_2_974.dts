@@ -8154,15 +8154,15 @@
 
 			display-timings {
 				4000x974-60Hz {
-					clock-frequency = <265697280>;
+					clock-frequency = <265161600>;
 					hactive = <4000>;
 					hfront-porch = <296>;
 					hback-porch = <104>;
 					hsync-len = <64>;
 					vactive = <974>;
-					vfront-porch = <6>;
+					vfront-porch = <5>;
 					vback-porch = <6>;
-					vsync-len = <6>;
+					vsync-len = <5>;
 					nvidia,h-ref-to-sync = <0x0>;
 					nvidia,v-ref-to-sync = <0x1>;
 				};
@@ -8246,15 +8246,15 @@
 
 			display-timings {
 				4000x974-60Hz {
-					clock-frequency = <265697280>;
+					clock-frequency = <265161600>;
 					hactive = <4000>;
 					hfront-porch = <296>;
 					hback-porch = <104>;
 					hsync-len = <64>;
 					vactive = <974>;
-					vfront-porch = <6>;
+					vfront-porch = <5>;
 					vback-porch = <6>;
-					vsync-len = <6>;
+					vsync-len = <5>;
 					nvidia,h-ref-to-sync = <0x0>;
 					nvidia,v-ref-to-sync = <0x1>;
 				};
