@@ -84,6 +84,7 @@ void JetsonTx2FlashingInfo::windowCreated()
 void JetsonTx2FlashingInfo::loadSettingInfo(const QString &path)
 {
     QString _path = path;
+
 #if defined (Q_OS_LINUX)
     QString result = _path.replace("file://","");
 #else
@@ -95,6 +96,10 @@ void JetsonTx2FlashingInfo::loadSettingInfo(const QString &path)
         qDebug() << "file not exist: " << result;
         return;
     }
+
+    QDir d = QFileInfo(result).absoluteDir();
+    QString absolute=d.absolutePath();
+    m_flashingAppPath = absolute;
 
     QDomDocument doc;
     doc.setContent(&settings);
@@ -172,7 +177,17 @@ void JetsonTx2FlashingInfo::loadSettingInfo(const QString &path)
         m_displayList.append(name);
 
         QString dts = element.attribute("DTS");
-        if(!dts.isNull()) p_disp->dts = dts;
+        if(!dts.isNull())
+        {
+            p_disp->dts = dts;
+            p_disp->dtb = "";
+        }
+        else
+        {
+            QString dtb = element.attribute("DTB");
+            p_disp->dts = "";
+            p_disp->dtb = dtb;
+        }
 
         QString app_prefix = element.attribute("APP_PREFIX");
         if(!app_prefix.isNull()) p_disp->app_prefix = app_prefix;
@@ -393,7 +408,15 @@ void JetsonTx2FlashingInfo::onProjectChanged(int project)
         if(currentStatus.display_out != search->display_out->name)
         {
             currentStatus.display_out = search->display_out->name;
-            currentStatus.ip = search->display_out->ip_list.at(0)->name;
+            if(search->display_out->ip_list.count() > 0)
+            {
+                currentStatus.ip = search->display_out->ip_list.at(0)->name;
+            }
+            else
+            {
+                currentStatus.ip = "";
+                currentStatus.m_ip = 0;
+            }
         }
 
         m_ipList.clear();
@@ -495,18 +518,34 @@ void JetsonTx2FlashingInfo::flashing()
 {
     if(currentStatus.m_display_out)
     {
-        if(!currentStatus.m_display_out->dts.isEmpty())
+        // copy dtb
+        if(!currentStatus.m_display_out->dts.isNull() &&
+            !currentStatus.m_display_out->dts.isEmpty())
         {
             QString dts_src_dir = m_flashingAppPath + "/"+ currentStatus.m_display_out->rsc_dir + "/";
             QString dts_dst_dir = m_flashingAppPath + "/"+ currentStatus.m_display_out->rsc_dir + "/";
-            QString dts_cmd = currentStatus.m_display_out->base_path + "/kernel/dtc -I dts -O dtb -o "
-                     + dts_dst_dir + "temp.dtb "
-                     + dts_src_dir + currentStatus.m_display_out->dts;
+            QString dts_cmd = QString("%1/kernel/dtc -I dts -O dtb -o %2temp.dtb %3%4")
+                    .arg(currentStatus.m_display_out->base_path)
+                    .arg(dts_dst_dir)
+                    .arg(dts_src_dir)
+                    .arg(currentStatus.m_display_out->dts);
             emit executeCommand(m_prefixSudo + dts_cmd);
 
             QString dtb_dst_dir = currentStatus.m_display_out->base_path + "/kernel/dtb/";
-            QString dtb_cmd = "cp " + dts_dst_dir + "temp.dtb"
-                     + " " + dtb_dst_dir + "tegra186-quill-p3310-1000-c03-00-base.dtb";
+            QString dtb_cmd = QString("cp %1temp.dtb %2tegra186-quill-p3310-1000-c03-00-base.dtb")
+                                    .arg(dts_dst_dir)
+                                    .arg(dtb_dst_dir);
+            emit executeCommand(m_prefixSudo + dtb_cmd);
+        }
+        else if(!currentStatus.m_display_out->dtb.isNull() &&
+                !currentStatus.m_display_out->dtb.isEmpty())
+        {
+            QString dtb_dst_dir = currentStatus.m_display_out->base_path + "/kernel/dtb/";
+            QString dts_src_dir = m_flashingAppPath + "/"+ currentStatus.m_display_out->rsc_dir + "/";
+            QString dtb_cmd = QString("cp %1%2 %3tegra186-quill-p3310-1000-c03-00-base.dtb")
+                                    .arg(dts_src_dir)
+                                    .arg(currentStatus.m_display_out->dtb)
+                                    .arg(dtb_dst_dir);
             emit executeCommand(m_prefixSudo + dtb_cmd);
         }
 
@@ -514,8 +553,10 @@ void JetsonTx2FlashingInfo::flashing()
         {
             QString disp_src_dir = m_flashingAppPath + "/" + currentStatus.m_display_out->app_dir + "/";
             QString disp_dst_dir = currentStatus.m_display_out->dst_path + "/";
-            QString disp_cmd = "cp " + disp_src_dir + currentStatus.disp_ctrl
-                     + " " + disp_dst_dir + "DISP_CTRL";
+            QString disp_cmd = QString("cp %1%2 %3DISP_CTRL")
+                    .arg(disp_src_dir)
+                    .arg(currentStatus.disp_ctrl)
+                    .arg(disp_dst_dir);
             emit executeCommand(m_prefixSudo + disp_cmd);
         }
 
@@ -523,8 +564,10 @@ void JetsonTx2FlashingInfo::flashing()
         {
             QString upg_src_dir = m_flashingAppPath + "/" + currentStatus.m_display_out->rsc_dir + "/";
             QString upg_dst_dir = currentStatus.m_display_out->dst_path + "/";
-            QString upg_cmd = "cp " + upg_src_dir + currentStatus.remote_upgrade
-                     + " " + upg_dst_dir + "RemoteUpgrade";
+            QString upg_cmd = QString("cp %1%2 %3RemoteUpgrade")
+                    .arg(upg_src_dir)
+                    .arg(currentStatus.remote_upgrade)
+                    .arg(upg_dst_dir);
             emit executeCommand(m_prefixSudo + upg_cmd);
         }
 
@@ -532,8 +575,10 @@ void JetsonTx2FlashingInfo::flashing()
         {
             QString ip_src_dir = m_flashingAppPath + "/" + currentStatus.m_display_out->rsc_dir + "/";
             QString ip_dst_dir = currentStatus.m_display_out->base_path + "/" + currentStatus.m_ip->dst_path + "/";
-            QString ip_cmd = "cp " + ip_src_dir + currentStatus.m_ip->src_file
-                     + " " + ip_dst_dir + "interfaces";
+            QString ip_cmd = QString("cp %1%2 %3interfaces")
+                    .arg(ip_src_dir)
+                    .arg(currentStatus.m_ip->src_file)
+                    .arg(ip_dst_dir);
             emit executeCommand(m_prefixSudo + ip_cmd);
         }
 
@@ -548,18 +593,39 @@ void JetsonTx2FlashingInfo::flashing()
 
 void JetsonTx2FlashingInfo::flashingWithoutMakingImage()
 {
-    // always copy dtb
-    QString dts_src_dir = m_flashingAppPath + "/"+ currentStatus.m_display_out->rsc_dir + "/";
-    QString dts_dst_dir = m_flashingAppPath + "/"+ currentStatus.m_display_out->rsc_dir + "/";
-    QString dts_cmd = currentStatus.m_display_out->base_path + "/kernel/dtc -I dts -O dtb -o "
-             + dts_dst_dir + "temp.dtb "
-             + dts_src_dir + currentStatus.m_display_out->dts;
-    emit executeCommand(m_prefixSudo + dts_cmd);
+    if(currentStatus.m_display_out)
+    {
+        // copy dtb
+        if(!currentStatus.m_display_out->dts.isNull() &&
+            !currentStatus.m_display_out->dts.isEmpty())
+        {
+            QString dts_src_dir = m_flashingAppPath + "/"+ currentStatus.m_display_out->rsc_dir + "/";
+            QString dts_dst_dir = m_flashingAppPath + "/"+ currentStatus.m_display_out->rsc_dir + "/";
+            QString dts_cmd = QString("%1/kernel/dtc -I dts -O dtb -o %2temp.dtb %3%4")
+                    .arg(currentStatus.m_display_out->base_path)
+                    .arg(dts_dst_dir)
+                    .arg(dts_src_dir)
+                    .arg(currentStatus.m_display_out->dts);
+            emit executeCommand(m_prefixSudo + dts_cmd);
 
-    QString dtb_dst_dir = currentStatus.m_display_out->base_path + "/kernel/dtb/";
-    QString dtb_cmd = "cp " + dts_dst_dir + "temp.dtb"
-             + " " + dtb_dst_dir + "tegra186-quill-p3310-1000-c03-00-base.dtb";
-    emit executeCommand(m_prefixSudo + dtb_cmd);
+            QString dtb_dst_dir = currentStatus.m_display_out->base_path + "/kernel/dtb/";
+            QString dtb_cmd = QString("cp %1temp.dtb %2tegra186-quill-p3310-1000-c03-00-base.dtb")
+                                    .arg(dts_dst_dir)
+                                    .arg(dtb_dst_dir);
+            emit executeCommand(m_prefixSudo + dtb_cmd);
+        }
+        else if(!currentStatus.m_display_out->dtb.isNull() &&
+                !currentStatus.m_display_out->dtb.isEmpty())
+        {
+            QString dtb_dst_dir = currentStatus.m_display_out->base_path + "/kernel/dtb/";
+            QString dts_src_dir = m_flashingAppPath + "/"+ currentStatus.m_display_out->rsc_dir + "/";
+            QString dtb_cmd = QString("cp %1%2 %3tegra186-quill-p3310-1000-c03-00-base.dtb")
+                                    .arg(dts_src_dir)
+                                    .arg(currentStatus.m_display_out->dtb)
+                                    .arg(dtb_dst_dir);
+            emit executeCommand(m_prefixSudo + dtb_cmd);
+        }
+    }
 
     // start flashing without make image
     emit executeCommand("cd " + currentStatus.m_display_out->base_path);
@@ -572,19 +638,38 @@ void JetsonTx2FlashingInfo::flashingWithoutMakingImage()
 
 void JetsonTx2FlashingInfo::flashing_dtb()
 {
-    if(currentStatus.m_display_out && !currentStatus.m_display_out->dts.isEmpty())
+    if(currentStatus.m_display_out)
     {
-        QString dts_src_dir = m_flashingAppPath + "/"+ currentStatus.m_display_out->rsc_dir + "/";
-        QString dts_dst_dir = m_flashingAppPath + "/"+ currentStatus.m_display_out->rsc_dir + "/";
-        QString dts_cmd = currentStatus.m_display_out->base_path + "/kernel/dtc -I dts -O dtb -o "
-                 + dts_dst_dir + "temp.dtb "
-                 + dts_src_dir + currentStatus.m_display_out->dts;
-        emit executeCommand(m_prefixSudo + dts_cmd);
+        // copy dtb
+        if(!currentStatus.m_display_out->dts.isNull() &&
+            !currentStatus.m_display_out->dts.isEmpty())
+        {
+            QString dts_src_dir = m_flashingAppPath + "/"+ currentStatus.m_display_out->rsc_dir + "/";
+            QString dts_dst_dir = m_flashingAppPath + "/"+ currentStatus.m_display_out->rsc_dir + "/";
+            QString dts_cmd = QString("%1/kernel/dtc -I dts -O dtb -o %2temp.dtb %3%4")
+                    .arg(currentStatus.m_display_out->base_path)
+                    .arg(dts_dst_dir)
+                    .arg(dts_src_dir)
+                    .arg(currentStatus.m_display_out->dts);
+            emit executeCommand(m_prefixSudo + dts_cmd);
 
-        QString dtb_dst_dir = currentStatus.m_display_out->base_path + "/kernel/dtb/";
-        QString dtb_cmd = "cp " + dts_dst_dir + "temp.dtb"
-                 + " " + dtb_dst_dir + "tegra186-quill-p3310-1000-c03-00-base.dtb";
-        emit executeCommand(m_prefixSudo + dtb_cmd);
+            QString dtb_dst_dir = currentStatus.m_display_out->base_path + "/kernel/dtb/";
+            QString dtb_cmd = QString("cp %1temp.dtb %2tegra186-quill-p3310-1000-c03-00-base.dtb")
+                                    .arg(dts_dst_dir)
+                                    .arg(dtb_dst_dir);
+            emit executeCommand(m_prefixSudo + dtb_cmd);
+        }
+        else if(!currentStatus.m_display_out->dtb.isNull() &&
+                !currentStatus.m_display_out->dtb.isEmpty())
+        {
+            QString dtb_dst_dir = currentStatus.m_display_out->base_path + "/kernel/dtb/";
+            QString dts_src_dir = m_flashingAppPath + "/"+ currentStatus.m_display_out->rsc_dir + "/";
+            QString dtb_cmd = QString("cp %1%2 %3tegra186-quill-p3310-1000-c03-00-base.dtb")
+                                    .arg(dts_src_dir)
+                                    .arg(currentStatus.m_display_out->dtb)
+                                    .arg(dtb_dst_dir);
+            emit executeCommand(m_prefixSudo + dtb_cmd);
+        }
 
         emit executeCommand("cd " + currentStatus.m_display_out->base_path);
         emit executeCommand(m_prefixSudo + "./flash.sh -r -k kernel-dtb jetson-tx2 mmcblk0p1");

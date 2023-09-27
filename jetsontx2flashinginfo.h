@@ -49,6 +49,7 @@ public:
 
     QString name;
     QString dts;
+    QString dtb;
     QString base_path;
     QString app_prefix;
     QString major_prefix;
